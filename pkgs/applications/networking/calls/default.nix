@@ -34,10 +34,10 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitLab {
     domain = "source.puri.sm";
-    owner = "Librem5";
+    owner = "GNOME";
     repo = pname;
     rev = "v${version}";
-    sha256 = "0igap5ynq269xqaky6fqhdg2dpsvxa008z953ywa4s5b5g5dk3dd";
+    sha256 = "1nqcnb832l7ikdjav9a154db6sisqbmk9mv1kbd82ki9xwvwrwrp";
   };
 
   outputs = [ "out" "devdoc" ];

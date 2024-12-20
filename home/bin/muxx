@@ -8,5 +8,5 @@ for i in {2..4}; do
 done
 
 tmux select-window -t "${MUX_SESSION_NAME}"
+tmux kill-session -t 0
 tmux -2 attach-session -t "${MUX_SESSION_NAME}"
-

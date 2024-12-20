@@ -58,7 +58,6 @@ in {
         LC_ALL = "en_US.UTF-8";
         LC_CTYPE = "en_US";
         LC_MESSAGES="en_US";
-        # TERM="xterm-256color";
       };
       initExtra = ''
         if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then

@@ -23,7 +23,7 @@ in
     "aaqaishtyaq/tap"
   ];
 
-  homebrew.brews = [];
+  # homebrew.brews = [];
 
   # If an app isn't available in the Mac App Store, or the version in the App Store has
   # limitiations, e.g., Transmit, install the Homebrew Cask.
@@ -31,12 +31,15 @@ in
     "alacritty"
     "hammerspoon"
     "visual-studio-code"
-    "openlens"
     "utm"
     "hiddenbar"
     "font-blex-mono-nerd-font"
     "orbstack"
     "zen-browser"
+    "alfred"
+    "clipy"
+    "brave-browser"
+    "tailscale"
   ];
   home-manager.sharedModules = [
       {

@@ -24,7 +24,7 @@ in {
       resizeAmount = 5;
       escapeTime = 0;
       newSession = true;
-      terminal = "xterm-256color";
+      terminal = "tmux-256color";
       extraConfig = ''
         # Configuration
         setw -g automatic-rename on
@@ -36,7 +36,7 @@ in {
         bind-key ` last-window
         bind-key e send-prefix
 
-        set -g default-terminal "xterm-256color"
+        set -g default-terminal "tmux-256color"
         set -g history-limit 10000
         set -g mouse on
         set-window-option -g xterm-keys on

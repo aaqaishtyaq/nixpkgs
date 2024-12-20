@@ -102,6 +102,7 @@ Include ~/.orbstack/ssh/config
       # redis
       kubernetes-helm
       k9s
+      terraform
     ;
 
     inherit (pkgs.unixtools)
@@ -124,6 +125,8 @@ Include ~/.orbstack/ssh/config
 
     # GUI
     inherit(pkgs)
+      realvnc-vnc-viewer
+      weechat
     ;
 
   } // lib.optionalAttrs pkgs.stdenv.isDarwin {

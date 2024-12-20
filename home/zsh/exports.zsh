@@ -3,7 +3,7 @@
 # Environment Variables
 #-------------------------#
 
-export TERM="xterm-256color"
+# export TERM="xterm-256color"
 export ZSH=/Users/$USER/.oh-my-zsh
 export SSH_KEY_PATH="$HOME/.ssh/rsa_id"
 

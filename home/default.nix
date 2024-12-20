@@ -13,7 +13,7 @@
     zsh.enable = true;
     tmux.enable = true;
     nvim.enable = true;
-    emacs.enable = true;
+    emacs.enable = false;
     alacritty.enable = true;
     hammerspoon.enable = true;
   };

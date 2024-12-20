@@ -66,11 +66,7 @@ alias weather="curl wttr.in"
 
 # workspace
 alias dev='cd $HOME/Developer'
-alias deel="cd ~/Developer/go/src/letsdeel/"
 alias tm="byobu-tmux"
-
-# Deel
-alias docker_login="aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 974360507615.dkr.ecr.eu-west-1.amazonaws.com"
 
 if [[ "${MACOS}" ]]; then
    # alias dircolors='gdircolors'

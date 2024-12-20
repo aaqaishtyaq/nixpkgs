@@ -23,9 +23,7 @@ in
     "aaqaishtyaq/tap"
   ];
 
-  homebrew.brews = [
-    "libpq"
-  ];
+  homebrew.brews = [];
 
   # If an app isn't available in the Mac App Store, or the version in the App Store has
   # limitiations, e.g., Transmit, install the Homebrew Cask.
@@ -34,13 +32,11 @@ in
     "hammerspoon"
     "visual-studio-code"
     "openlens"
-    "meetingbar"
-    "dbeaver-community"
-    "firefox"
-    "obsidian"
     "utm"
-    "flameshot"
     "hiddenbar"
+    "font-blex-mono-nerd-font"
+    "orbstack"
+    "zen-browser"
   ];
   home-manager.sharedModules = [
       {

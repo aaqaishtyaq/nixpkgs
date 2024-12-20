@@ -105,7 +105,7 @@ in {
         [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
         [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
 
-        export KNPATH="$HOME/Developer/go/src/github.com/aaqaishtyaq/jottings"
+        export KNPATH="$HOME/Developer/go/src/github.com/aaqa/jottings"
         export PATH="$HOME/.local/bin":$PATH
         export GOPATH="$HOME/Developer/go"
 
@@ -117,10 +117,6 @@ in {
         export CPPFLAGS="-I/opt/homebrew/opt/jpeg/include"
         # For pkg-config to find jpeg need to set:
         export PKG_CONFIG_PATH="/opt/homebrew/opt/jpeg/lib/pkgconfig"
-
-        ### RANCHER DESKTOP
-        export PATH="/Users/aaqaishtyaq/.rd/bin:$PATH"
-        export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
         export HOMEBREW_CASK_OPTS="--appdir=~/Applications --fontdir=~/Library/Fonts"
       '';

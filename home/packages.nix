@@ -18,7 +18,6 @@
   programs.ssh.enable = true;
   programs.ssh.controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
   programs.ssh.extraConfig = ''
-Include ~/.ssh/deel_config
 Include ~/.orbstack/ssh/config
   '';
 
@@ -64,7 +63,7 @@ Include ~/.orbstack/ssh/config
 
     # Runtimes
     inherit (pkgs)
-      go_1_22
+      go_1_23
       pkg-config
       bundix
       gnumake
@@ -100,7 +99,6 @@ Include ~/.orbstack/ssh/config
       kubectl
       awscli2
       kubectx
-      skopeo
       # redis
       kubernetes-helm
       k9s
@@ -127,16 +125,6 @@ Include ~/.orbstack/ssh/config
     # GUI
     inherit(pkgs)
     ;
-
-    # Deel specific
-    inherit(pkgs)
-      natscli
-    ;
-
-    # Node Packages
-    # inherit(pkgs.nodePackages)
-    #   pyright
-    # ;
 
   } // lib.optionalAttrs pkgs.stdenv.isDarwin {
     inherit (pkgs)

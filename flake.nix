@@ -1,5 +1,5 @@
 {
-  description = "Aaqa's darwin system at Deel";
+  description = "Aaqa's darwin system";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/master";
@@ -36,9 +36,9 @@
     homeStateVersion = "24.05";
 
     primaryUserDefaults = {
-      username = "aaqaishtyaq";
-      fullName = "aaqaishtyaq";
-      email = "aaqa.ishtyaq@deel.com";
+      username = "aaqa";
+      fullName = "aaqa";
+      email = "aaqaishtyaq@gmail.com";
       nixConfigDirectory = "/Users/aaqa/.config/nixpkgs";
     };
 
@@ -133,12 +133,11 @@
           modules = [ ./darwin/bootstrap.nix { nixpkgs = nixpkgsDefaults; } ];
         };
 
-        # My apple silicon macOS work laptop
-        m3-max = makeOverridable self.lib.mkDarwinSystem (primaryUserDefaults // {
+        m4-pro = makeOverridable self.lib.mkDarwinSystem (primaryUserDefaults // {
           modules = attrValues self.darwinModules ++ singleton {
             nixpkgs = nixpkgsDefaults;
-            networking.computerName = "aaqa-ishtyaq-deel";
-            networking.hostName = "aaqa-ishtyaq-deel";
+            networking.computerName = "powerbook";
+            networking.hostName = "powerbook";
             networking.knownNetworkServices = [
               "Wi-Fi"
               "USB 10/100/1000 LAN"

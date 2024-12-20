@@ -3,23 +3,6 @@
 # Functions
 #-------------------------#
 
-# Start local_ops
-ops() {
-    local task="${1:-start}"
-    local service="${2:-hrw-slim}"
-    local_ops "$task" -s "$service" --tmux
-}
-
-_rspec() {
-    command="RAILS_ENV=test rspec $1"
-    local_ops run -s hrw-rails -c "exec" -a "$command && exit"
-}
-
-# Change aws profile
-aws-prf() {
-    local PROFILE="${1:-hr-dev}"
-    export AWS_PROFILE="$PROFILE"
-}
 
 # list_out_all_256_colors
 color_ls() {
@@ -34,44 +17,6 @@ color_ls() {
 # create a temporary file and open it for editing
 tmpf() {
     ${EDITOR} +"set filetype=$1" + "/tmp/temp-$(date +'%Y%m%d-%H%M%S')"
-}
-
-# Exec into che containers
-_kx() {
-    local koutput
-    local namespace
-    local pod
-    local container
-    local shell
-    koutput=$(kubectl get pods --all-namespaces | grep "$1")
-    namespace=$(echo "$koutput" | awk '{print $1}')
-    pod=$(echo "$koutput" | awk '{print $2}')
-    container=${2:-dev}
-    shell=${3:-bash}
-
-    kubectl exec -it "$pod" -n "$namespace" -c "$container" -- "$shell"
-}
-
-# QA Rails Exec
-_qx() {
-    kubectx hr-qa
-    local POD
-    POD=$(kubectl get pods -n qatest | grep hrw-web-rails | awk 'FNR==1{print $1}')
-    kubectl exec -it "$POD" -n qatest -c rails -- bash
-}
-
-# Private/PreProd Rails Exec
-_px() {
-    kubectx hr-private
-    local NAMESPACE
-    local POD
-    NAMESPACE="${1:-rba}"
-    POD=$(kubectl get pods -n "$NAMESPACE" | grep hrw-web-rails | awk 'FNR==1{print $1}')
-    kubectl exec -it "$POD" -n "$NAMESPACE" -c rails -- bash
-}
-
-dots() {
-    code "$HOME/Developer/dotfiles"
 }
 
 # create a temporary directory and enter it
@@ -114,81 +59,4 @@ cdgr() {
         cd ..
     done
     OLDPWD=$TEMP_PWD
-}
-
-# cd to dotfiles directory
-dots() {
-    cd "${DOTS_DIR}" || return
-}
-
-# cd to github.com/aaqaishtyaq dir
-cdaa() {
-    cd "${DEV_DIR}" || return
-}
-
-# shell to qa hrw-web-rails container.
-_rx() {
-    local POD
-    # Kubernetes namespace for qa clusters
-    local context
-    context=$1
-
-    kubectx hr-qa
-    POD=$(kubectl get pods -n "${context}" | grep hrw-web-rails | awk 'FNR==1{print $1}')
-    kubectl exec -it "$POD" -n "${context}" -c rails -- bash
-}
-
-# alias to pushd
-pd() {
-    pushd "$@"
-}
-
-
-###########################
-# Deel specific functions #
-###########################
-
-giger_login() {
-    aws sso login --profile giger-eks
-    aws eks update-kubeconfig --name giger --region eu-west-1 --profile giger-eks
-}
-
-shared_login() {
-    aws sso login --profile shared
-}
-
-dev_login() {
-    aws sso login --profile dev-eks
-    aws eks update-kubeconfig --name demo --region eu-west-1 --profile demo-eks
-}
-
-prod_login() {
-    aws sso login --profile prod-eks
-    aws eks update-kubeconfig --name deel-prod --region eu-west-1 --profile prod-eks
-}
-
-deel_login() {
-    prod_login
-    dev_login
-    shared_login
-    giger_login
-}
-
-edh() {
-    code .
-}
-
-deel_helm_generate_template() {
-    local serviceName
-    serviceName="$1"
-    helm_env="${2-prod}"
-    echo "$servicename*"
-    rm -rf "$servicename*" || :
-
-    (
-        helm template charts/$serviceName -f $helm_env/config/deel-appset/values-$serviceName.yaml > $serviceName-pr-$helm_env-generated.yaml || :
-    ) &&
-    (
-        helm template ../gitops-applications-dev/charts/$serviceName -f ../gitops-applications-dev/$helm_env/config/deel-appset/values-$serviceName.yaml > $serviceName-dev-$helm_env-generated.yaml || :
-    )
 }

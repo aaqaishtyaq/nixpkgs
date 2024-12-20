@@ -6,11 +6,6 @@
 export TERM="xterm-256color"
 export ZSH=/Users/$USER/.oh-my-zsh
 export SSH_KEY_PATH="$HOME/.ssh/rsa_id"
-# export CHE_DOMAIN=$(kubectl get services --namespace ingress-nginx -o jsonpath='{.items[*].spec.clusterIP}')
-
-# Starship prompt config dir location
-command -v starship > /dev/null \
-  && export STARSHIP_CONFIG="${HOME}/.config/starship/starship.toml"
 
 #Locale setting for python iterm2
 export LC_ALL=en_US.UTF-8

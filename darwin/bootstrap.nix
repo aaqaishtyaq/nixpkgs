@@ -10,7 +10,7 @@
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     ];
 
-    trusted-users = [ "@admin" "@aaqaishtyaq" "aaqaishtyaq" ];
+    trusted-users = [ "@admin" "@aaqa" "aaqa" ];
 
     # https://github.com/NixOS/nix/issues/7273
     auto-optimise-store = false;

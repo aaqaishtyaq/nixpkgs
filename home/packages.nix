@@ -18,7 +18,12 @@
   programs.ssh.enable = true;
   programs.ssh.controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
   programs.ssh.extraConfig = ''
+Host sirius
+    HostName 13.53.90.145
+    User ubuntu
+
 Include ~/.orbstack/ssh/config
+Include ~/.ssh/local_config
   '';
 
   programs.zoxide.enable = true;

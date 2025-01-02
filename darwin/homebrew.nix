@@ -34,6 +34,7 @@ in
     "utm"
     "hiddenbar"
     "font-blex-mono-nerd-font"
+    "font-iosevka-nerd-font"
     "orbstack"
     "zen-browser"
     "alfred"

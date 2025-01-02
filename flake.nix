@@ -33,7 +33,7 @@
     inherit (darwin.lib) darwinSystem;
     inherit (inputs.nixpkgs-unstable.lib) attrValues makeOverridable optionalAttrs singleton;
 
-    homeStateVersion = "24.05";
+    homeStateVersion = "24.11";
 
     primaryUserDefaults = {
       username = "aaqa";

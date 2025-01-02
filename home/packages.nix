@@ -75,6 +75,7 @@ Include ~/.ssh/local_config
       sqlite
       libpcap
       zlib
+      rustup
     ;
 
     # GoLang

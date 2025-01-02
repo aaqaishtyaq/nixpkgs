@@ -40,6 +40,8 @@ in
     "clipy"
     "brave-browser"
     "tailscale"
+    "rectangle"
+    "ghostty"
   ];
   home-manager.sharedModules = [
       {

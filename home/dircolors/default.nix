@@ -80,6 +80,7 @@ in {
         TERM xterm-color
         TERM xterm-debian
         TERM xterm-termite
+        TERM xterm-ghostty
         EIGHTBIT 1
         NORMAL 00
         FILE 00

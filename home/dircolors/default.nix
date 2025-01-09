@@ -81,6 +81,7 @@ in {
         TERM xterm-debian
         TERM xterm-termite
         TERM xterm-ghostty
+        TERM alacritty
         EIGHTBIT 1
         NORMAL 00
         FILE 00

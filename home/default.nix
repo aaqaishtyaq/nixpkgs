@@ -6,6 +6,7 @@
     ./nvim/default.nix
     ./alacritty/default.nix
     ./hammerspoon/default.nix
+    ./dircolors/default.nix
   ];
 
   aaqaishtyaq = {
@@ -14,5 +15,6 @@
     nvim.enable = true;
     alacritty.enable = true;
     hammerspoon.enable = true;
+    dircolors.enable = true;
   };
 }

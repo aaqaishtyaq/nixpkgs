@@ -77,14 +77,6 @@ in {
           fi
         done
 
-        if command -v grep &>/dev/null; then
-          if [ -r ~/.config/dircolors/dircolors ]; then
-            eval "$(dircolors -b ~/.config/dircolors/dircolors)"
-          else
-            eval "$(dircolors -b)"
-          fi
-        fi
-
         if [ ! "$TERM" = dumb ]; then
           autoload -Uz add-zsh-hook
           _iay_prompt() {
@@ -127,7 +119,6 @@ in {
       ".config/zsh.d/completion.zsh".source = ./completion.zsh;
       ".config/zsh.d/functions.zsh".source = ./functions.zsh;
       ".config/zsh.d/options.zsh".source = ./options.zsh;
-      ".config/dircolors/dircolors".source = ../dircolors/dircolors;
     };
   };
 }

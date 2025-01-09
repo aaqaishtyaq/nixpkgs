@@ -64,6 +64,7 @@ Include ~/.ssh/local_config
       silver-searcher
       universal-ctags
       bat
+      git-crypt 
     ;
 
     # Runtimes

@@ -19,8 +19,11 @@
   programs.ssh.controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
   programs.ssh.extraConfig = ''
 Host sirius
-    HostName 13.53.90.145
+    HostName sirius.aaqa.dev
     User ubuntu
+Host galactica
+    HostName galactica.aaqa.dev
+    User aaqaishtyaq
 
 Include ~/.orbstack/ssh/config
 Include ~/.ssh/local_config
@@ -64,7 +67,7 @@ Include ~/.ssh/local_config
       silver-searcher
       universal-ctags
       bat
-      git-crypt 
+      git-crypt
     ;
 
     # Runtimes

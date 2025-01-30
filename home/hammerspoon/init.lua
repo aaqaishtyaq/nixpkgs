@@ -9,7 +9,7 @@ local hsModifier = { "ctrl", "cmd" }
 local code = "/Applications/Visual Studio Code.app"
 
 local appList = {
-  Alacritty = { binding = "a"},
+  Ghostty = { binding = "a"},
   Firefox = { binding = "f" },
   Slack = { binding = "s" },
   Music = { binding = "m" },

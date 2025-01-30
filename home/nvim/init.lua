@@ -66,9 +66,6 @@ o.completeopt = [[menuone,noinsert,noselect]]
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<C-p>', builtin.find_files, {})
 
--- vim.cmd("colorscheme kanagawa-dragon")
-vim.cmd("colorscheme base16-default-dark")
-
 require("telescope").setup({
   update_cwd = true,
   -- respect_buf_cwd = true,

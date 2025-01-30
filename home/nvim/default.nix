@@ -19,7 +19,6 @@ in {
       plugins = with pkgs.vimPlugins; [
           fzfWrapper
           fzf-lua
-          gruvbox
           kanagawa-nvim
           neocomplete-vim
           vim-commentary
@@ -41,8 +40,6 @@ in {
           nvim-treesitter-context
 
           plenary-nvim
-
-          base16-vim
           # nvim-web-devicons
           {
             plugin = nvim-treesitter;

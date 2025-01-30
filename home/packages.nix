@@ -24,6 +24,9 @@ Host sirius
 Host galactica
     HostName galactica.aaqa.dev
     User aaqaishtyaq
+Host gcp-dev-vm
+    HostName 35.200.217.170
+    User aaqaishtyaq
 
 Include ~/.orbstack/ssh/config
 Include ~/.ssh/local_config
@@ -68,6 +71,8 @@ Include ~/.ssh/local_config
       universal-ctags
       bat
       git-crypt
+
+      turbo
     ;
 
     # Runtimes
@@ -137,6 +142,11 @@ Include ~/.ssh/local_config
     inherit(pkgs)
       realvnc-vnc-viewer
       weechat
+    ;
+
+    # python packages
+    inherit(pkgs.python312Packages)
+      git-filter-repo
     ;
 
   } // lib.optionalAttrs pkgs.stdenv.isDarwin {

@@ -43,6 +43,7 @@ in
     "tailscale"
     "rectangle"
     "ghostty"
+    "logseq"
   ];
   home-manager.sharedModules = [
       {

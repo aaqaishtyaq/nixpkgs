@@ -56,9 +56,6 @@ in {
         bind | split-window -h -c "#{pane_current_path}"
         bind - split-window -v -c "#{pane_current_path}"
 
-        # Zoom pane
-        bind z resize-pane -Z
-
         # Detach from session
         bind d detach
         bind D if -F '#{session_many_attached}' \
@@ -106,7 +103,9 @@ in {
         set -g status-style "fg=$color_status_text"
         set -g window-status-format " #I:#W "
         set -g window-status-separator ""
-        set -g window-status-current-format "#[fg=$color_light,bg=$color_main,bold] #I:#W #[fg=$color_main,bg=$color_dark]#[default]"
+        # set -g window-status-current-format "#[fg=$color_light,bg=$color_main,bold] #I:#W #[fg=$color_main,bg=$color_dark]#[default]"
+        # instead of boxes, highlight the active window text
+        set -g window-status-current-format "#[fg=$color_main,bold] #I:#W* #[fg=$color_main,bg=$color_dark]#[default]"
         set -g window-status-activity-style "fg=$color_main"
 
         set -g mode-style "fg=$color_dark,bg=$color_light"

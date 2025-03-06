@@ -44,6 +44,7 @@ in
     "rectangle"
     "ghostty"
     "logseq"
+    "cursor"
   ];
   home-manager.sharedModules = [
       {

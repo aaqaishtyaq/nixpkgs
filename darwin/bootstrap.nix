@@ -27,12 +27,6 @@
     keep-outputs = true;
   };
 
-  nix.configureBuildUsers = true;
-
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
-
-
   # Shells -----------------------------------------------------------------------------------------
 
   # Add shells installed by nix to /etc/shells file

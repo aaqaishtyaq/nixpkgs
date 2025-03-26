@@ -45,6 +45,7 @@ in
     "ghostty"
     "logseq"
     "cursor"
+    "vlc"
   ];
   home-manager.sharedModules = [
       {

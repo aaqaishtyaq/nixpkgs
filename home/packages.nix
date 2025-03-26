@@ -142,6 +142,7 @@ Include ~/.ssh/local_config
     inherit(pkgs)
       realvnc-vnc-viewer
       weechat
+      yt-dlp
     ;
 
     # python packages

@@ -34,6 +34,7 @@ alias grv='git remote -v'
 alias grehh='git reset --hard HEAD'
 alias grehfh='git reset --hard FETCH_HEAD'
 alias gs="git status"
+alias gst="git status -s"
 alias gsh='git show'
 alias gsi='git submodule init'
 

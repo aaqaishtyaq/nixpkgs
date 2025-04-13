@@ -18,6 +18,12 @@
   programs.ssh.enable = true;
   programs.ssh.controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
   programs.ssh.extraConfig = ''
+Host spt-ams-1
+    HostName spt-ams-1.aaqa.dev
+    User ubuntu
+Host ovh-lon-1
+    HostName ovh-lon-1.aaqa.dev
+    User ubuntu
 Host sirius
     HostName sirius.aaqa.dev
     User ubuntu
@@ -118,6 +124,7 @@ Include ~/.ssh/local_config
       kubernetes-helm
       k9s
       terraform
+      natscli
     ;
 
     inherit (pkgs.unixtools)

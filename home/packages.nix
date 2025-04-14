@@ -83,7 +83,7 @@ Include ~/.ssh/local_config
 
     # Runtimes
     inherit (pkgs)
-      go_1_23
+      go_1_24
       pkg-config
       bundix
       gnumake
@@ -125,6 +125,7 @@ Include ~/.ssh/local_config
       k9s
       terraform
       natscli
+      pnpm
     ;
 
     inherit (pkgs.unixtools)

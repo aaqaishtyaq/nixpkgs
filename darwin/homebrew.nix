@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkIf elem;
@@ -51,19 +56,19 @@ in
   ];
 
   home-manager.sharedModules = [
-      {
-        home.file = {
-          gpg-agent = {
-            target = ".gnupg/gpg-agent.conf";
-            text = ''
-              pinentry-program ${pinentry-program}
-              default-cache-ttl 43200
-              default-cache-ttl-ssh 43200
-              max-cache-ttl 43200
-              max-cache-ttl-ssh 43200
-            '';
-          };
+    {
+      home.file = {
+        gpg-agent = {
+          target = ".gnupg/gpg-agent.conf";
+          text = ''
+            pinentry-program ${pinentry-program}
+            default-cache-ttl 43200
+            default-cache-ttl-ssh 43200
+            max-cache-ttl 43200
+            max-cache-ttl-ssh 43200
+          '';
         };
-      }
-    ];
+      };
+    }
+  ];
 }

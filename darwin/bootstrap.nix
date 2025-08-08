@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
 
@@ -10,7 +15,11 @@
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     ];
 
-    trusted-users = [ "@admin" "@aaqa" "aaqa" ];
+    trusted-users = [
+      "@admin"
+      "@aaqa"
+      "aaqa"
+    ];
 
     # https://github.com/NixOS/nix/issues/7273
     auto-optimise-store = false;
@@ -20,7 +29,10 @@
       "flakes"
     ];
 
-    extra-platforms = lib.mkIf (pkgs.system == "aarch64-darwin") [ "x86_64-darwin" "aarch64-darwin" ];
+    extra-platforms = lib.mkIf (pkgs.system == "aarch64-darwin") [
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
 
     # Recommended when using `direnv` etc.
     keep-derivations = true;

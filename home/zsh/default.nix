@@ -1,11 +1,17 @@
-{config, lib, pkgs, ...}:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.aaqaishtyaq.zsh;
   dotDir = "${config.home.homeDirectory}/.config/zsh.d";
-in {
+in
+{
   options.aaqaishtyaq.zsh = {
     enable = mkEnableOption "Enable the Z Shell";
   };
@@ -57,7 +63,7 @@ in {
         LANG = "en_US.UTF-8";
         LC_ALL = "en_US.UTF-8";
         LC_CTYPE = "en_US";
-        LC_MESSAGES="en_US";
+        LC_MESSAGES = "en_US";
       };
       initContent = ''
         if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then

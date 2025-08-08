@@ -30,31 +30,46 @@
     };
   };
 
-  outputs = { self, darwin, nixpkgs, home-manager, flake-utils, mac-app-util, ... }@inputs:
-  let
-    inherit (darwin.lib) darwinSystem;
-    inherit (inputs.nixpkgs-unstable.lib) attrValues makeOverridable optionalAttrs singleton mkForce;
+  outputs =
+    {
+      self,
+      darwin,
+      nixpkgs,
+      home-manager,
+      flake-utils,
+      mac-app-util,
+      ...
+    }@inputs:
+    let
+      inherit (darwin.lib) darwinSystem;
+      inherit (inputs.nixpkgs-unstable.lib)
+        attrValues
+        makeOverridable
+        optionalAttrs
+        singleton
+        mkForce
+        ;
 
-    homeStateVersion = "24.11";
+      homeStateVersion = "25.05";
 
-    primaryUserDefaults = {
-      username = "aaqa";
-      fullName = "aaqa";
-      email = "aaqaishtyaq@gmail.com";
-      nixConfigDirectory = "/Users/aaqa/.config/nixpkgs";
-    };
-
-    nixpkgsDefaults = {
-      config = {
-        allowUnfree = true;
-        permittedInsecurePackages = [
-          "ruby-2.7.8"
-          "openssl-1.1.1u"
-          "openssl-1.1.1w"
-          "nodejs-16.20.0"
-          "python-2.7.18.7"
-        ];
+      primaryUserDefaults = {
+        username = "aaqa";
+        fullName = "aaqa";
+        email = "aaqaishtyaq@gmail.com";
+        nixConfigDirectory = "/Users/aaqa/.config/nixpkgs";
       };
+
+      nixpkgsDefaults = {
+        config = {
+          allowUnfree = true;
+          permittedInsecurePackages = [
+            "ruby-2.7.8"
+            "openssl-1.1.1u"
+            "openssl-1.1.1w"
+            "nodejs-16.20.0"
+            "python-2.7.18.7"
+          ];
+        };
         overlays =
           attrValues self.overlays
           ++ singleton (
@@ -67,14 +82,15 @@
               # Add other overlays here if needed.
             }
           );
-    };
-  in
+      };
+    in
     {
       # Add some additional functions to `lib`.
-      lib = inputs.nixpkgs-unstable.lib.extend (_: _: {
-        mkDarwinSystem = import ./lib/mkDarwinSystem.nix inputs;
-      });
-
+      lib = inputs.nixpkgs-unstable.lib.extend (
+        _: _: {
+          mkDarwinSystem = import ./lib/mkDarwinSystem.nix inputs;
+        }
+      );
 
       # Overlays --------------------------------------------------------------------------------{{{
 
@@ -98,15 +114,16 @@
             inherit (nixpkgsDefaults) config;
           };
         };
-        apple-silicon = _: prev: optionalAttrs (prev.stdenv.system == "aarch64-darwin") {
-          # Add access to x86 packages system is running Apple Silicon
-          pkgs-x86 = import inputs.nixpkgs-unstable {
-            system = "x86_64-darwin";
-            inherit (nixpkgsDefaults) config;
+        apple-silicon =
+          _: prev:
+          optionalAttrs (prev.stdenv.system == "aarch64-darwin") {
+            # Add access to x86 packages system is running Apple Silicon
+            pkgs-x86 = import inputs.nixpkgs-unstable {
+              system = "x86_64-darwin";
+              inherit (nixpkgsDefaults) config;
+            };
           };
-        };
       };
-
 
       darwinModules = {
         # My configurations
@@ -118,44 +135,54 @@
         users-primaryUser = import ./modules/darwin/users.nix;
       };
 
-  homeManagerModules = {
+      homeManagerModules = {
         # My configurations
         darwin-home = import ./home;
 
-        home-user-info = { lib, ... }: {
-          options.home.user-info =
-            (self.darwinModules.users-primaryUser { inherit lib; }).options.users.primaryUser;
-        };
+        home-user-info =
+          { lib, ... }:
+          {
+            options.home.user-info =
+              (self.darwinModules.users-primaryUser { inherit lib; }).options.users.primaryUser;
+          };
       };
 
       darwinConfigurations = {
         # minimal macOS configurations to bootstrap system
         bootstrap-x86 = makeOverridable darwin.lib.darwinSystem {
           system = "x86_64-darwin";
-          modules = [ ./darwin/bootstrap.nix { nixpkgs = nixpkgsDefaults; } ];
+          modules = [
+            ./darwin/bootstrap.nix
+            { nixpkgs = nixpkgsDefaults; }
+          ];
         };
         bootstrap-arm = self.darwinConfigurations.bootstrap-x86.override {
           system = "aarch64-darwin";
         };
 
         # My Apple Silicon macOS laptop config
-        m4-pro = makeOverridable self.lib.mkDarwinSystem (primaryUserDefaults // {
-          modules = attrValues self.darwinModules ++ singleton {
-            nixpkgs = nixpkgsDefaults;
-            networking.computerName = "powerbook";
-            networking.hostName = "powerbook";
-            networking.knownNetworkServices = [
-              "Wi-Fi"
-              "USB 10/100/1000 LAN"
+        m4-pro = makeOverridable self.lib.mkDarwinSystem (
+          primaryUserDefaults
+          // {
+            modules =
+              attrValues self.darwinModules
+              ++ singleton {
+                nixpkgs = nixpkgsDefaults;
+                networking.computerName = "powerbook";
+                networking.hostName = "powerbook";
+                networking.knownNetworkServices = [
+                  "Wi-Fi"
+                  "USB 10/100/1000 LAN"
+                ];
+                system.primaryUser = "aaqa"; # Add this line for the new nix-darwin requirement
+                nix.registry.my.flake = inputs.self;
+              };
+            inherit homeStateVersion;
+            homeModules = attrValues self.homeManagerModules ++ [
+              inputs.mac-app-util.homeManagerModules.default
             ];
-            system.primaryUser = "aaqa";  # Add this line for the new nix-darwin requirement
-            nix.registry.my.flake = inputs.self;
-          };
-          inherit homeStateVersion;
-          homeModules = attrValues self.homeManagerModules ++ [
-            inputs.mac-app-util.homeManagerModules.default
-          ];
-        });
+          }
+        );
 
         # Config with small modifications needed/desired for CI with GitHub workflow
         githubCI = self.darwinConfigurations.m4-pro.override {
@@ -201,31 +228,45 @@
             };
         });
 
-      } // flake-utils.lib.eachDefaultSystem (system: {
-      # Re-export `nixpkgs-unstable` with overlays.
-      # This is handy in combination with setting `nix.registry.my.flake = inputs.self`.
-      # Allows doing things like `nix run my#prefmanager -- watch --all`
-      legacyPackages = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
+      }
+      // flake-utils.lib.eachDefaultSystem (system: {
+        # Re-export `nixpkgs-unstable` with overlays.
+        # This is handy in combination with setting `nix.registry.my.flake = inputs.self`.
+        # Allows doing things like `nix run my#prefmanager -- watch --all`
+        legacyPackages = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
 
-      # Development shells ----------------------------------------------------------------------{{{
-      # Shell environments for development
-      # With `nix.registry.my.flake = inputs.self`, development shells can be created by running,
-      # e.g., `nix develop my#python`.
-      devShells = let pkgs = self.legacyPackages.${system}; in
-        {
-          default = pkgs.mkShell {
-            name = "default";
-            buildInputs = attrValues { inherit (pkgs) nixd nixfmt-rfc-style; };
-          };
-          python = pkgs.mkShell {
-            name = "python310";
-            inputsFrom = attrValues {
-              inherit (pkgs.pkgs-master.python310Packages) black isort certbot psycopg2;
-              inherit (pkgs) poetry python310 pyright bigquery-schema-generatori;
+        # Development shells ----------------------------------------------------------------------{{{
+        # Shell environments for development
+        # With `nix.registry.my.flake = inputs.self`, development shells can be created by running,
+        # e.g., `nix develop my#python`.
+        devShells =
+          let
+            pkgs = self.legacyPackages.${system};
+          in
+          {
+            default = pkgs.mkShell {
+              name = "default";
+              buildInputs = attrValues { inherit (pkgs) nixd nixfmt-rfc-style; };
+            };
+            python = pkgs.mkShell {
+              name = "python310";
+              inputsFrom = attrValues {
+                inherit (pkgs.pkgs-master.python310Packages)
+                  black
+                  isort
+                  certbot
+                  psycopg2
+                  ;
+                inherit (pkgs)
+                  poetry
+                  python310
+                  pyright
+                  bigquery-schema-generatori
+                  ;
+              };
             };
           };
-        };
-      # }}}
-    });
-  };
+        # }}}
+      });
+    };
 }

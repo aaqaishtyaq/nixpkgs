@@ -1,10 +1,16 @@
-{config, lib, pkgs, ...}:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.aaqaishtyaq.alacritty;
-in {
+in
+{
   options.aaqaishtyaq.alacritty = {
     enable = mkEnableOption "Enable alacritty terminal";
   };

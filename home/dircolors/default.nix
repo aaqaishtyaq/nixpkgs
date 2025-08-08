@@ -1,10 +1,16 @@
-{config, lib, pkgs, ...}:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.aaqaishtyaq.dircolors;
-in {
+in
+{
   options.aaqaishtyaq.dircolors = {
     enable = mkEnableOption "enable dircolors";
   };

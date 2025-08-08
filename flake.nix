@@ -2,15 +2,19 @@
   description = "Aaqa's darwin system";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/master";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # Package sets
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixpkgs-24.11-darwin";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+    # Environment/system management
     darwin = {
-      url = "github:lnl7/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-darwin/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
     home-manager = {
-      url ="github:nix-community/home-manager/master";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     flake-utils.url = "github:numtide/flake-utils";
@@ -22,16 +26,14 @@
 
     mac-app-util = {
       url = "github:hraban/mac-app-util";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
 
   outputs = { self, darwin, nixpkgs, home-manager, flake-utils, mac-app-util, ... }@inputs:
   let
-    home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz";
-    # home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz";
     inherit (darwin.lib) darwinSystem;
-    inherit (inputs.nixpkgs-unstable.lib) attrValues makeOverridable optionalAttrs singleton;
+    inherit (inputs.nixpkgs-unstable.lib) attrValues makeOverridable optionalAttrs singleton mkForce;
 
     homeStateVersion = "24.11";
 
@@ -53,15 +55,18 @@
           "python-2.7.18.7"
         ];
       };
-      overlays = attrValues self.overlays ++ singleton (
-        # Sub in x86 version of packages that don't build on Apple Silicon yet
-        final: prev: (optionalAttrs (prev.stdenv.system == "aarch64-darwin")
-          {
-            inherit (final.pkgs-x86)
-            nix-index;
-          }
-        )
-      );
+        overlays =
+          attrValues self.overlays
+          ++ singleton (
+            final: prev:
+            (optionalAttrs (prev.stdenv.system == "aarch64-darwin") {
+              # Sub in x86 version of packages that don't build on Apple Silicon.
+              # inherit (final.pkgs-x86) [...];
+            })
+            // {
+              # Add other overlays here if needed.
+            }
+          );
     };
   in
     {
@@ -117,9 +122,6 @@
         # My configurations
         darwin-home = import ./home;
 
-        # setup apps from nix-darwin to show up in spotlight/alfred.
-        darwin-spotlight = inputs.mac-app-util.homeManagerModules.default;
-
         home-user-info = { lib, ... }: {
           options.home.user-info =
             (self.darwinModules.users-primaryUser { inherit lib; }).options.users.primaryUser;
@@ -128,11 +130,15 @@
 
       darwinConfigurations = {
         # minimal macOS configurations to bootstrap system
-        bootstrap-arm = makeOverridable darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
+        bootstrap-x86 = makeOverridable darwin.lib.darwinSystem {
+          system = "x86_64-darwin";
           modules = [ ./darwin/bootstrap.nix { nixpkgs = nixpkgsDefaults; } ];
         };
+        bootstrap-arm = self.darwinConfigurations.bootstrap-x86.override {
+          system = "aarch64-darwin";
+        };
 
+        # My Apple Silicon macOS laptop config
         m4-pro = makeOverridable self.lib.mkDarwinSystem (primaryUserDefaults // {
           modules = attrValues self.darwinModules ++ singleton {
             nixpkgs = nixpkgsDefaults;
@@ -145,7 +151,53 @@
             nix.registry.my.flake = inputs.self;
           };
           inherit homeStateVersion;
-          homeModules = attrValues self.homeManagerModules;
+          homeModules = attrValues self.homeManagerModules ++ [
+            inputs.mac-app-util.homeManagerModules.default
+          ];
+        });
+
+        # Config with small modifications needed/desired for CI with GitHub workflow
+        githubCI = self.darwinConfigurations.m4-pro.override {
+          username = "runner";
+          nixConfigDirectory = "/Users/runner/work/nixpkgs/nixpkgs";
+          extraModules = singleton {
+            environment.etc.shells.enable = mkForce false;
+            environment.etc."nix/nix.conf".enable = mkForce false;
+            homebrew.enable = mkForce false;
+            # TODO: Remove when VM on GitHub updates to Sonoma
+            ids.uids.nixbld = 300;
+          };
+        };
+
+        # Config I use with non-NixOS Linux systems (e.g., cloud VMs etc.)
+        # Build and activate on new system with:
+        # `nix build .#homeConfigurations.aaqa.activationPackage && ./result/activate`
+        homeConfigurations.aaqa = makeOverridable home-manager.lib.homeManagerConfiguration {
+          pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { system = "x86_64-linux"; });
+          modules =
+            attrValues self.homeManagerModules
+            ++ singleton (
+              { config, ... }:
+              {
+                home.username = config.home.user-info.username;
+                home.homeDirectory = "/home/${config.home.username}";
+                home.stateVersion = homeStateVersion;
+                home.user-info = primaryUserDefaults // {
+                  nixConfigDirectory = "${config.home.homeDirectory}/.config/nixpkgs";
+                };
+              }
+            );
+        };
+
+        # Config with small modifications needed/desired for CI with GitHub workflow
+        homeConfigurations.runner = self.homeConfigurations.malo.override (old: {
+          modules =
+            old.modules
+            ++ singleton {
+              home.username = mkForce "runner";
+              home.homeDirectory = mkForce "/home/runner";
+              home.user-info.nixConfigDirectory = mkForce "/home/runner/work/nixpkgs/nixpkgs";
+            };
         });
 
       } // flake-utils.lib.eachDefaultSystem (system: {
@@ -160,6 +212,10 @@
       # e.g., `nix develop my#python`.
       devShells = let pkgs = self.legacyPackages.${system}; in
         {
+          default = pkgs.mkShell {
+            name = "default";
+            buildInputs = attrValues { inherit (pkgs) nixd nixfmt-rfc-style; };
+          };
           python = pkgs.mkShell {
             name = "python310";
             inputsFrom = attrValues {

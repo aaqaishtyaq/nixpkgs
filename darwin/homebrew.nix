@@ -46,7 +46,9 @@ in
     "logseq"
     "cursor"
     "vlc"
+    "iina"
   ];
+
   home-manager.sharedModules = [
       {
         home.file = {

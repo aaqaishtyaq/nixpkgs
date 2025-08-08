@@ -19,7 +19,7 @@ GPG_TTY=$(tty)
 export GPG_TTY
 export PATH=~/.local/bin/scripts:$PATH
 
-command -v nvim > /dev/null && EDITOR='nvim' || EDITOR='vi'
+command -v nvim >/dev/null && EDITOR='nvim' || EDITOR='vi'
 export EDITOR
 
 export LANGUAGE=en_US.UTF-8

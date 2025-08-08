@@ -79,6 +79,7 @@ Include ~/.ssh/local_config
       git-crypt
 
       turbo
+      rustscan
     ;
 
     # Runtimes

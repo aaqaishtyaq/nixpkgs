@@ -47,6 +47,7 @@ in
     "cursor"
     "vlc"
     "iina"
+    "transmission"
   ];
 
   home-manager.sharedModules = [

@@ -118,7 +118,7 @@
         users-primaryUser = import ./modules/darwin/users.nix;
       };
 
-      homeManagerModules = {
+  homeManagerModules = {
         # My configurations
         darwin-home = import ./home;
 
@@ -148,6 +148,7 @@
               "Wi-Fi"
               "USB 10/100/1000 LAN"
             ];
+            system.primaryUser = "aaqa";  # Add this line for the new nix-darwin requirement
             nix.registry.my.flake = inputs.self;
           };
           inherit homeStateVersion;

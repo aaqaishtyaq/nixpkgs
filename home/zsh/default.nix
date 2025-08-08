@@ -4,7 +4,7 @@ with lib;
 
 let
   cfg = config.aaqaishtyaq.zsh;
-  dotDir = ".config/zsh.d";
+  dotDir = "${config.home.homeDirectory}/.config/zsh.d";
 in {
   options.aaqaishtyaq.zsh = {
     enable = mkEnableOption "Enable the Z Shell";
@@ -18,7 +18,7 @@ in {
         enable = true;
       };
       history = {
-        path = "$HOME/${dotDir}/.zsh_history";
+        path = "${dotDir}/.zsh_history";
         save = 50000;
         ignoreDups = true;
         share = true;
@@ -59,7 +59,7 @@ in {
         LC_CTYPE = "en_US";
         LC_MESSAGES="en_US";
       };
-      initExtra = ''
+      initContent = ''
         if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
           . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
         fi
@@ -71,7 +71,7 @@ in {
 
         export GPG_TTY=$(tty)
 
-        for file in "$HOME/${dotDir}/"*.zsh; do
+        for file in "${dotDir}/"*.zsh; do
           if [[ -r "$file" ]] && [[ -f "$file" ]]; then
             source "$file"
           fi

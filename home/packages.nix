@@ -78,6 +78,9 @@ Include ~/.ssh/local_config
       bat
       git-crypt
 
+      nixd
+      nixfmt-rfc-style
+
       turbo
       rustscan
     ;

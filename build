@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
+set -e
 
 nix --extra-experimental-features "nix-command flakes" build ".#darwinConfigurations.m4-pro.system" $@
 
-./result/sw/bin/darwin-rebuild switch --flake '.#m4-pro'
-
+sudo ./result/sw/bin/darwin-rebuild switch --flake '.#m4-pro'

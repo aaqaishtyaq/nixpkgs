@@ -18,24 +18,24 @@
   programs.ssh.enable = true;
   programs.ssh.controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
   programs.ssh.extraConfig = ''
-Host spt-ams-1
-    HostName spt-ams-1.aaqa.dev
-    User ubuntu
-Host ovh-lon-1
-    HostName ovh-lon-1.aaqa.dev
-    User ubuntu
-Host sirius
-    HostName sirius.aaqa.dev
-    User ubuntu
-Host galactica
-    HostName galactica.aaqa.dev
-    User aaqaishtyaq
-Host gcp-dev-vm
-    HostName 35.200.217.170
-    User aaqaishtyaq
+    Host spt-ams-1
+        HostName spt-ams-1.aaqa.dev
+        User ubuntu
+    Host ovh-lon-1
+        HostName ovh-lon-1.aaqa.dev
+        User ubuntu
+    Host sirius
+        HostName sirius.aaqa.dev
+        User ubuntu
+    Host galactica
+        HostName galactica.aaqa.dev
+        User aaqaishtyaq
+    Host gcp-dev-vm
+        HostName 35.200.217.170
+        User aaqaishtyaq
 
-Include ~/.orbstack/ssh/config
-Include ~/.ssh/local_config
+    Include ~/.orbstack/ssh/config
+    Include ~/.ssh/local_config
   '';
 
   programs.zoxide.enable = true;
@@ -45,129 +45,133 @@ Include ~/.ssh/local_config
     enable = true;
   };
 
-  home.packages = lib.attrValues ({
-    # Some basics
-    inherit (pkgs)
-      bandwhich # display current network utilization by process
-      bottom # fancy version of `top` with ASCII graphs
-      coreutils
-      curl
-      du-dust # fancy version of `du`
-      fd # fancy version of `find`
-      htop # fancy version of `top`
-      ripgrep # better version of `grep`
-      tealdeer # rust implementation of `tldr`
-      unrar # extract RAR archives
-      wget
-      xz # extract XZ archives
-      iay
-      pinentry_mac
-      gnupg
-      diff-so-fancy
-      fzf
-      tree
-      jq
-      yq
-      aria
-      zstd
-      parallel
-      mosh
-      gnutar
-      silver-searcher
-      universal-ctags
-      bat
-      git-crypt
+  home.packages = lib.attrValues (
+    {
+      # Some basics
+      inherit (pkgs)
+        bandwhich # display current network utilization by process
+        bottom # fancy version of `top` with ASCII graphs
+        coreutils
+        curl
+        du-dust # fancy version of `du`
+        fd # fancy version of `find`
+        htop # fancy version of `top`
+        ripgrep # better version of `grep`
+        tealdeer # rust implementation of `tldr`
+        unrar # extract RAR archives
+        wget
+        xz # extract XZ archives
+        iay
+        pinentry_mac
+        gnupg
+        diff-so-fancy
+        fzf
+        tree
+        jq
+        yq
+        aria
+        zstd
+        parallel
+        mosh
+        gnutar
+        silver-searcher
+        universal-ctags
+        bat
+        git-crypt
 
-      nixd
-      nixfmt-rfc-style
+        nixd
+        nixfmt-rfc-style
 
-      turbo
-      rustscan
-    ;
+        turbo
+        rustscan
+        nmap
+        ;
 
-    # Runtimes
-    inherit (pkgs)
-      go_1_24
-      pkg-config
-      bundix
-      gnumake
-      sqlite
-      libpcap
-      zlib
-      rustup
-    ;
+      # Runtimes
+      inherit (pkgs)
+        go_1_24
+        pkg-config
+        bundix
+        gnumake
+        sqlite
+        libpcap
+        zlib
+        rustup
+        ;
 
-    # GoLang
-    inherit (pkgs)
-      gotests
-      golangci-lint
-      gomodifytags
-      impl
-      go-tools
-      delve
-      gopls
-      gofumpt
-      go-outline
-      godef
-      golint
-    ;
+      # GoLang
+      inherit (pkgs)
+        gotests
+        golangci-lint
+        gomodifytags
+        impl
+        go-tools
+        delve
+        gopls
+        gofumpt
+        go-outline
+        godef
+        golint
+        ;
 
-    gcloud = pkgs.google-cloud-sdk.withExtraComponents [
-      pkgs.google-cloud-sdk.components.gke-gcloud-auth-plugin
-    ];
+      gcloud = pkgs.google-cloud-sdk.withExtraComponents [
+        pkgs.google-cloud-sdk.components.gke-gcloud-auth-plugin
+      ];
 
-    # Dev stuff
-    inherit (pkgs)
-      cloc # source code line counter
-      nodejs
-      typescript
-      kubectl
-      awscli2
-      kubectx
-      # redis
-      kubernetes-helm
-      k9s
-      terraform
-      natscli
-      pnpm
-    ;
+      # Dev stuff
+      inherit (pkgs)
+        cloc # source code line counter
+        nodejs
+        typescript
+        kubectl
+        awscli2
+        kubectx
+        # redis
+        kubernetes-helm
+        k9s
+        terraform
+        natscli
+        pnpm
+        ;
 
-    inherit (pkgs.unixtools)
-      watch
-    ;
+      inherit (pkgs.unixtools)
+        watch
+        ;
 
-    # Useful nix related tools
-    inherit (pkgs)
-      cachix # adding/managing alternative binary caches hosted by Cachix
-      comma # run software from without installing it
-      # niv # easy dependency management for nix projects
-      nix-output-monitor # get additional information while building packages
-      nix-tree # interactively browse dependency graphs of Nix derivations
-      nix-update # swiss-knife for updating nix packages
-      nixpkgs-review # review pull-requests on nixpkgs
-      node2nix # generate Nix expressions to build NPM packages
-      statix # lints and suggestions for the Nix programming language
-      nil # nix lsp
-    ;
+      # Useful nix related tools
+      inherit (pkgs)
+        cachix # adding/managing alternative binary caches hosted by Cachix
+        comma # run software from without installing it
+        # niv # easy dependency management for nix projects
+        nix-output-monitor # get additional information while building packages
+        nix-tree # interactively browse dependency graphs of Nix derivations
+        nix-update # swiss-knife for updating nix packages
+        nixpkgs-review # review pull-requests on nixpkgs
+        node2nix # generate Nix expressions to build NPM packages
+        statix # lints and suggestions for the Nix programming language
+        nil # nix lsp
+        ;
 
-    # GUI
-    inherit(pkgs)
-      realvnc-vnc-viewer
-      weechat
-      yt-dlp
-    ;
+      # GUI
+      inherit (pkgs)
+        realvnc-vnc-viewer
+        weechat
+        yt-dlp
+        ;
 
-    # python packages
-    inherit(pkgs.python312Packages)
-      git-filter-repo
-    ;
+      # python packages
+      inherit (pkgs.python312Packages)
+        git-filter-repo
+        ;
 
-  } // lib.optionalAttrs pkgs.stdenv.isDarwin {
-    inherit (pkgs)
-      cocoapods
-      m-cli # useful macOS CLI commands
-    ;
-  });
+    }
+    // lib.optionalAttrs pkgs.stdenv.isDarwin {
+      inherit (pkgs)
+        cocoapods
+        m-cli # useful macOS CLI commands
+        ;
+    }
+  );
 
   home.file = {
     ".local/bin/alatheme".source = ./bin/alatheme;

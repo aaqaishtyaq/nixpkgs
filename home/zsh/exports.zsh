@@ -40,6 +40,7 @@ if [[ -z "$XDG_CACHE_HOME" ]]; then
 	export XDG_CACHE_HOME="$HOME/.cache"
 fi
 
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 # jpeg is keg-only, which means it was not symlinked into /opt/homebrew,
 # because it conflicts with `jpeg-turbo`.
 export PATH="/opt/homebrew/opt/jpeg/bin:$PATH"

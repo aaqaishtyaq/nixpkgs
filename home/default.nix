@@ -1,13 +1,12 @@
-{ config, pkgs, ... }:
-{
+{ config, pkgs, ... }: {
   imports = [
     ./packages.nix
     ./zsh/default.nix
     ./tmux/default.nix
     ./nvim/default.nix
     ./alacritty/default.nix
+    ./ghostty/default.nix
     ./hammerspoon/default.nix
-    ./dircolors/default.nix
   ];
 
   aaqaishtyaq = {
@@ -15,7 +14,7 @@
     tmux.enable = true;
     nvim.enable = true;
     alacritty.enable = true;
+    ghostty.enable = true;
     hammerspoon.enable = true;
-    dircolors.enable = true;
   };
 }

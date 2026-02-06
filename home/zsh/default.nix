@@ -119,6 +119,7 @@ in
 
         # pnpm user directory
         export PNPM_HOME="$HOME/.local/share/pnpm"
+        export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
         export PATH="$PNPM_HOME:$PATH"
 
       '';

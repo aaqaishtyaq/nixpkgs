@@ -16,7 +16,10 @@
   # https://nix-community.github.io/home-manager/options.html#opt-programs.ssh.enable
   # Some options also set in `../darwin/homebrew.nix`.
   programs.ssh.enable = true;
-  programs.ssh.controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
+  programs.ssh.enableDefaultConfig = false;
+  programs.ssh.matchBlocks."*" = {
+    controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
+  };
   programs.ssh.extraConfig = ''
     Host spt-ams-1
         HostName spt-ams-1.aaqa.dev
@@ -53,7 +56,7 @@
         bottom # fancy version of `top` with ASCII graphs
         coreutils
         curl
-        du-dust # fancy version of `du`
+        dust # fancy version of `du`
         fd # fancy version of `find`
         htop # fancy version of `top`
         ripgrep # better version of `grep`
@@ -69,7 +72,7 @@
         tree
         jq
         yq
-        aria
+        aria2
         zstd
         parallel
         mosh
@@ -78,11 +81,12 @@
         universal-ctags
         bat
         git-crypt
+        rclone
+        restic
 
         nixd
         nixfmt-rfc-style
 
-        turbo
         rustscan
         nmap
         ;

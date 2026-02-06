@@ -1,0 +1,71 @@
+name: Build Nix envs
+
+on:
+  pull_request:
+    paths:
+    - '**'
+    - '!**.md'
+  push:
+    branches:
+      - trunk
+    paths:
+    - '**'
+    - '!**.md'
+  schedule:
+    - cron: '5 0 * * 0' # Every Sunday at 00:05 UTC
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      update_inputs:
+        description: 'Update flake inputs before building'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+
+  build-macos-env:
+    name: Build/cache macOS Nix env
+    runs-on: macos-latest
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v31
+      with:
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+          experimental-features = nix-command flakes
+
+    - name: Setup Cachix
+      uses: cachix/cachix-action@v16
+      with:
+        name: aaqaishtyaq
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+    - name: If scheduled or manual with update, update inputs
+      if: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.update_inputs == 'true')) && success() }}
+      run: |
+        nix flake update
+
+    - name: Build nix-darwin configuration
+      run: |
+        # Prevent conflict between Cachix installed by workflow and the one installed in the config
+        nix-env --set-flag priority 1 cachix
+        # Build configuration (this also pushes to Cachix automatically)
+        nix build .#darwinConfigurations.githubCI.system --show-trace
+
+    - name: If scheduled, commit and push updated inputs
+      if: ${{ github.event_name == 'schedule' && success() }}
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add flake.lock
+        git diff --staged --quiet || git -c commit.gpgSign=false commit -m "chore: update flake inputs"
+        git push
+

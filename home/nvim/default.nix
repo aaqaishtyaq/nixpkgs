@@ -51,16 +51,12 @@ in
           plugin = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
           type = "lua";
           config = ''
-            require'nvim-treesitter.configs'.setup {
-              sync_install = false,
-              auto_install = false,
-
-              highlight = {
-                enable = true,
-
-                additional_vim_regex_highlighting = false,
-              },
-            }
+            local ok_treesitter, treesitter = pcall(require, "nvim-treesitter")
+            if ok_treesitter and treesitter.setup then
+              treesitter.setup {
+                install_dir = vim.fn.stdpath("data") .. "/site",
+              }
+            end
           '';
         }
         {

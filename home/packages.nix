@@ -85,7 +85,7 @@
         restic
 
         nixd
-        nixfmt-rfc-style
+        nixfmt
 
         rustscan
         nmap

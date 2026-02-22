@@ -23,7 +23,7 @@ in
       # leader = "."
 
       plugins = with pkgs.vimPlugins; [
-        fzfWrapper
+        fzf-wrapper
         fzf-lua
         kanagawa-nvim
         neocomplete-vim
@@ -48,7 +48,7 @@ in
         plenary-nvim
         # nvim-web-devicons
         {
-          plugin = nvim-treesitter;
+          plugin = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
           type = "lua";
           config = ''
             require'nvim-treesitter.configs'.setup {

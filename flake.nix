@@ -231,6 +231,11 @@
                 ++ singleton (
                   { ... }:
                   {
+                    # Ensure standalone Linux Home Manager targets can use flakes
+                    # without requiring command-line flags on every nix invocation.
+                    home.file.".config/nix/nix.conf".text = ''
+                      experimental-features = nix-command flakes
+                    '';
                     home.username = username;
                     home.homeDirectory = homeDirectory;
                     home.stateVersion = homeStateVersion;
@@ -269,25 +274,29 @@
           });
         };
     }
-    // flake-utils.lib.eachDefaultSystem (system: {
-      # Re-export `nixpkgs-unstable` with overlays.
-      # This is handy in combination with setting `nix.registry.my.flake = inputs.self`.
-      # Allows doing things like `nix run my#prefmanager -- watch --all`
-      legacyPackages = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
+    // flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
+      in
+      {
+        # Re-export `nixpkgs-unstable` with overlays.
+        # This is handy in combination with setting `nix.registry.my.flake = inputs.self`.
+        # Allows doing things like `nix run my#prefmanager -- watch --all`
+        legacyPackages = pkgs;
 
-      # Development shells ----------------------------------------------------------------------{{{
-      # Shell environments for development
-      # With `nix.registry.my.flake = inputs.self`, development shells can be created by running,
-      # e.g., `nix develop my#python`.
-      devShells =
-        let
-          pkgs = self.legacyPackages.${system};
-        in
-        {
+        # Enable `nix fmt` by exposing a formatter for each supported system.
+        formatter = pkgs.nixfmt;
+
+        # Development shells --------------------------------------------------------------------{{{
+        # Shell environments for development
+        # With `nix.registry.my.flake = inputs.self`, development shells can be created by running,
+        # e.g., `nix develop my#python`.
+        devShells = {
           python = pkgs.mkShell {
-            name = "python310";
+            name = "python314";
             inputsFrom = attrValues {
-              inherit (pkgs.pkgs-master.python310Packages)
+              inherit (pkgs.pkgs-master.python314Packages)
                 black
                 isort
                 certbot
@@ -295,13 +304,14 @@
                 ;
               inherit (pkgs)
                 poetry
-                python310
+                python314
                 pyright
                 bigquery-schema-generatori
                 ;
             };
           };
         };
-      # }}}
-    });
+        # }}}
+      }
+    );
 }

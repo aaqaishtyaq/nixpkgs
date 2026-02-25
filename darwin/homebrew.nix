@@ -54,7 +54,7 @@ in
     "vlc"
     "iina"
     "transmission"
-    "ollama"
+    "ollama-app"
     "zed"
   ];
 

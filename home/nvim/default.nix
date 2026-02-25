@@ -8,10 +8,10 @@
 with lib;
 
 let
-  cfg = config.aaqaishtyaq.nvim;
+  cfg = config.aaqa.nvim;
 in
 {
-  options.aaqaishtyaq.nvim = {
+  options.aaqa.nvim = {
     enable = mkEnableOption "Enable neovim editor";
   };
   config = mkIf cfg.enable {

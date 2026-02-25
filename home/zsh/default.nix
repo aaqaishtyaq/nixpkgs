@@ -8,12 +8,17 @@
 with lib;
 
 let
-  cfg = config.aaqaishtyaq.zsh;
+  cfg = config.aaqa.zsh;
   dotDir = "${config.home.homeDirectory}/.config/zsh.d";
 in
 {
-  options.aaqaishtyaq.zsh = {
+  options.aaqa.zsh = {
     enable = mkEnableOption "Enable the Z Shell";
+    extraSessionVariables = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
+      description = "Extra session variables to merge into zsh sessionVariables.";
+    };
   };
   config = mkIf cfg.enable {
     programs.zsh = {
@@ -45,7 +50,7 @@ in
         tree = "tree -C";
         chmox = "chmod u+x";
         cl = "clear";
-        ctags = "/usr/local/bin/ctags";
+        ctags = if pkgs.stdenv.isDarwin then "/usr/local/bin/ctags" else "ctags";
         e = "nvim";
         grep = "grep --color=auto";
         ipaddr = "dig +short myip.opendns.com @resolver1.opendns.com";
@@ -64,14 +69,16 @@ in
         LC_ALL = "en_US.UTF-8";
         LC_CTYPE = "en_US";
         LC_MESSAGES = "en_US";
-      };
+      } // cfg.extraSessionVariables;
       initContent = ''
         if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
           . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
         fi
-
+      ''
+      + optionalString pkgs.stdenv.isDarwin ''
         eval "$(/opt/homebrew/bin/brew shellenv)"
-
+      ''
+      + ''
         eval "$(direnv hook zsh)"
         ZSH_AUTOSUGGEST_USE_ASYNC=true
 
@@ -92,20 +99,11 @@ in
         fi
 
         RPROMPT=""
-
+      ''
+      + optionalString pkgs.stdenv.isDarwin ''
         export PLAN9=/usr/local/plan9
         export PATH=$PATH:$PLAN9/bin
         PATH=$PATH:~/Library/Python/3.9/bin
-
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-        [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
-
-        export KNPATH="$HOME/Developer/go/src/github.com/aaqa/jottings"
-        export PATH="$HOME/.local/bin":$PATH
-        export GOPATH="$HOME/Developer/go"
-
         # jpeg is keg-only, which means it was not symlinked into /opt/homebrew,
         # because it conflicts with `jpeg-turbo`.
         export PATH="/opt/homebrew/opt/jpeg/bin:$PATH"
@@ -116,12 +114,21 @@ in
         export PKG_CONFIG_PATH="/opt/homebrew/opt/jpeg/lib/pkgconfig"
 
         export HOMEBREW_CASK_OPTS="--appdir=~/Applications --fontdir=~/Library/Fonts"
+      ''
+      + ''
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+        [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
+
+        export KNPATH="$HOME/Developer/go/src/github.com/aaqa/jottings"
+        export PATH="$HOME/.local/bin":$PATH
+        export GOPATH="$HOME/Developer/go"
 
         # pnpm user directory
         export PNPM_HOME="$HOME/.local/share/pnpm"
         export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
         export PATH="$PNPM_HOME:$PATH"
-
       '';
     };
 

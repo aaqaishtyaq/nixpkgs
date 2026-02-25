@@ -8,10 +8,10 @@
 with lib;
 
 let
-  cfg = config.aaqaishtyaq.alacritty;
+  cfg = config.aaqa.alacritty;
 in
 {
-  options.aaqaishtyaq.alacritty = {
+  options.aaqa.alacritty = {
     enable = mkEnableOption "Enable alacritty terminal";
   };
   config = mkIf cfg.enable {

@@ -27,7 +27,15 @@
     };
   };
 
-  outputs = { self, darwin, nixpkgs, home-manager, flake-utils, ... }@inputs:
+  outputs =
+    {
+      self,
+      darwin,
+      nixpkgs,
+      home-manager,
+      flake-utils,
+      ...
+    }@inputs:
     let
       inherit (darwin.lib) darwinSystem;
       inherit (inputs.nixpkgs-unstable.lib)
@@ -59,15 +67,17 @@
             "python-2.7.18.7"
           ];
         };
-        overlays = attrValues self.overlays ++ singleton (
-          # Sub in x86 version of packages that don't build on Apple Silicon yet
-          final: prev: (optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin")
-            {
+        overlays =
+          attrValues self.overlays
+          ++ singleton (
+            # Sub in x86 version of packages that don't build on Apple Silicon yet
+            final: prev:
+            (optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
               inherit (final.pkgs-x86)
-              nix-index;
-            }
-          )
-        );
+                nix-index
+                ;
+            })
+          );
       };
     in
     {
@@ -100,13 +110,35 @@
             inherit (nixpkgsDefaults) config;
           };
         };
-        apple-silicon = _: prev: optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
-          # Add access to x86 packages system is running Apple Silicon
-          pkgs-x86 = import inputs.nixpkgs-unstable {
-            system = "x86_64-darwin";
-            inherit (nixpkgsDefaults) config;
+        apple-silicon =
+          _: prev:
+          optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
+            # Add access to x86 packages system is running Apple Silicon
+            pkgs-x86 = import inputs.nixpkgs-unstable {
+              system = "x86_64-darwin";
+              inherit (nixpkgsDefaults) config;
+            };
           };
-        };
+
+        darwin-python-workarounds =
+          _: prev:
+          optionalAttrs prev.stdenv.isDarwin {
+            python313Packages = prev.python313Packages.overrideScope (
+              _: pyPrev: {
+                jeepney = pyPrev.jeepney.overrideAttrs (_: {
+                  # Avoid dbus-run-session checks on macOS where session bus is unavailable in build sandbox.
+                  installCheckPhase = "true";
+                });
+              }
+            );
+            python3Packages = prev.python3Packages.overrideScope (
+              _: pyPrev: {
+                jeepney = pyPrev.jeepney.overrideAttrs (_: {
+                  installCheckPhase = "true";
+                });
+              }
+            );
+          };
       };
 
       darwinModules = {
@@ -123,37 +155,55 @@
         # My configurations
         darwin-home = import ./home;
 
-        home-user-info = { lib, ... }: {
-          options.home.user-info = lib.mkOption {
-            type = lib.types.attrsOf (lib.types.nullOr lib.types.str);
+        home-user-info =
+          { lib, ... }:
+          {
+            options.home.user-info = lib.mkOption {
+              type = lib.types.attrsOf (lib.types.nullOr lib.types.str);
+            };
           };
-        };
+      };
+
+      # Host profiles are defined at the top-level `hosts/` directory so they can be
+      # extended later for NixOS machines too.
+      hostProfiles = {
+        powerbook = import ./hosts/powerbook.nix;
+        linuxDesktop = import ./hosts/linux-desktop.nix;
+        linuxServer = import ./hosts/linux-server.nix;
       };
 
       darwinConfigurations = {
         # minimal macOS configurations to bootstrap system
         bootstrap-arm = makeOverridable darwin.lib.darwinSystem {
           system = "aarch64-darwin";
-          modules = [ ./darwin/bootstrap.nix { nixpkgs = nixpkgsDefaults; } ];
+          modules = [
+            ./darwin/bootstrap.nix
+            { nixpkgs = nixpkgsDefaults; }
+          ];
         };
 
         # My apple silicon macOS work laptop
-        m4-pro = makeOverridable self.lib.mkDarwinSystem (primaryUserDefaults // {
-          modules = attrValues self.darwinModules ++ singleton {
-            nixpkgs = nixpkgsDefaults;
-            networking.computerName = "powerbook";
-            networking.hostName = "powerbook";
-            networking.knownNetworkServices = [
-              "Wi-Fi"
-              "USB 10/100/1000 LAN"
-            ];
-            nix.registry.my.flake = inputs.self;
-          };
-          inherit homeStateVersion;
-          homeModules = attrValues self.homeManagerModules;
-        });
+        powerbook = makeOverridable self.lib.mkDarwinSystem (
+          primaryUserDefaults
+          // {
+            modules =
+              attrValues self.darwinModules
+              ++ singleton {
+                nixpkgs = nixpkgsDefaults;
+                networking.computerName = "powerbook";
+                networking.hostName = "powerbook";
+                networking.knownNetworkServices = [
+                  "Wi-Fi"
+                  "USB 10/100/1000 LAN"
+                ];
+                nix.registry.my.flake = inputs.self;
+              };
+            inherit homeStateVersion;
+            homeModules = attrValues self.homeManagerModules ++ singleton self.hostProfiles.powerbook;
+          }
+        );
 
-        githubCI = self.darwinConfigurations.m4-pro.override {
+        githubCI = self.darwinConfigurations.powerbook.override {
           username = "runner";
           nixConfigDirectory = "/Users/runner/work/nixpkgs/nixpkgs";
           extraModules = singleton {
@@ -164,36 +214,60 @@
         };
       };
 
-      # Config I use with non-NixOS Linux systems (e.g., cloud VMs etc.)
-      # Build and activate on new system with:
-      # `nix build .#homeConfigurations.aaqa.activationPackage && ./result/activate`
-      homeConfigurations.aaqa = makeOverridable home-manager.lib.homeManagerConfiguration {
-        pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { system = "x86_64-linux"; });
-        modules =
-          attrValues self.homeManagerModules
-          ++ singleton (
-            { config, ... }:
+      homeConfigurations =
+        let
+          mkLinuxHome =
             {
-              home.username = config.home.user-info.username;
-              home.homeDirectory = "/home/${config.home.username}";
-              home.stateVersion = homeStateVersion;
-              home.user-info = primaryUserDefaults // {
-                nixConfigDirectory = "${config.home.homeDirectory}/.config/nixpkgs";
-              };
-            }
-          );
-      };
-
-      # Config with small modifications needed/desired for CI with GitHub workflow
-      homeConfigurations.runner = self.homeConfigurations.aaqa.override (old: {
-        modules =
-          old.modules
-          ++ singleton {
-            home.username = mkForce "runner";
-            home.homeDirectory = mkForce "/home/runner";
-            home.user-info.nixConfigDirectory = mkForce "/home/runner/work/nixpkgs/nixpkgs";
+              system,
+              username ? primaryUserDefaults.username,
+              homeDirectory ? "/home/${username}",
+              hostModules ? [ ],
+            }:
+            makeOverridable home-manager.lib.homeManagerConfiguration {
+              pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
+              modules =
+                attrValues self.homeManagerModules
+                ++ hostModules
+                ++ singleton (
+                  { ... }:
+                  {
+                    home.username = username;
+                    home.homeDirectory = homeDirectory;
+                    home.stateVersion = homeStateVersion;
+                    home.user-info = primaryUserDefaults // {
+                      inherit username homeDirectory;
+                      nixConfigDirectory = "${homeDirectory}/.config/nixpkgs";
+                    };
+                  }
+                );
+            };
+        in
+        {
+          # Configs for non-NixOS Linux systems (e.g. Ubuntu hosts and cloud VMs).
+          # Build and activate on the target host with:
+          # `nix build path:.#homeConfigurations.ubuntu-arm.activationPackage && ./result/activate`
+          "linux-server" = mkLinuxHome {
+            system = "x86_64-linux";
+            hostModules = singleton self.hostProfiles.linuxServer;
           };
-      });
+          "ubuntu-arm" = mkLinuxHome {
+            system = "aarch64-linux";
+            hostModules = singleton self.hostProfiles.linuxDesktop;
+          };
+
+          # Config with small modifications needed/desired for CI with GitHub workflow
+          runner = self.homeConfigurations."linux-server".override (old: {
+            modules =
+              old.modules
+              ++ singleton {
+                home.username = mkForce "runner";
+                home.homeDirectory = mkForce "/home/runner";
+                home.user-info.username = mkForce "runner";
+                home.user-info.homeDirectory = mkForce "/home/runner";
+                home.user-info.nixConfigDirectory = mkForce "/home/runner/work/nixpkgs/nixpkgs";
+              };
+          });
+        };
     }
     // flake-utils.lib.eachDefaultSystem (system: {
       # Re-export `nixpkgs-unstable` with overlays.
@@ -205,13 +279,26 @@
       # Shell environments for development
       # With `nix.registry.my.flake = inputs.self`, development shells can be created by running,
       # e.g., `nix develop my#python`.
-      devShells = let pkgs = self.legacyPackages.${system}; in
+      devShells =
+        let
+          pkgs = self.legacyPackages.${system};
+        in
         {
           python = pkgs.mkShell {
             name = "python310";
             inputsFrom = attrValues {
-              inherit (pkgs.pkgs-master.python310Packages) black isort certbot psycopg2;
-              inherit (pkgs) poetry python310 pyright bigquery-schema-generatori;
+              inherit (pkgs.pkgs-master.python310Packages)
+                black
+                isort
+                certbot
+                psycopg2
+                ;
+              inherit (pkgs)
+                poetry
+                python310
+                pyright
+                bigquery-schema-generatori
+                ;
             };
           };
         };

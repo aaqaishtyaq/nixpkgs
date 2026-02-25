@@ -8,10 +8,10 @@
 with lib;
 
 let
-  cfg = config.aaqaishtyaq.dircolors;
+  cfg = config.aaqa.dircolors;
 in
 {
-  options.aaqaishtyaq.dircolors = {
+  options.aaqa.dircolors = {
     enable = mkEnableOption "enable dircolors";
   };
   config = mkIf cfg.enable {

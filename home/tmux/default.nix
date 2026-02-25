@@ -2,9 +2,9 @@
 
 with lib;
 
-let cfg = config.aaqaishtyaq.tmux;
+let cfg = config.aaqa.tmux;
 in {
-  options.aaqaishtyaq.tmux = {
+  options.aaqa.tmux = {
     enable = mkEnableOption "set up tmux";
     shortcut = mkOption {
       type = types.str;

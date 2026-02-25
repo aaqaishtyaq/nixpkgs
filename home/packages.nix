@@ -1,6 +1,11 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
+  options.aaqa.gui = {
+    enable = lib.mkEnableOption "Install GUI applications for desktop hosts";
+  };
+
+  config = {
   # Direnv, load and unload environment variables depending on the current directory.
   # https://direnv.net
   # https://rycee.gitlab.io/home-manager/options.html#opt-programs.direnv.enable
@@ -37,7 +42,11 @@
         HostName 35.200.217.170
         User aaqaishtyaq
 
+  ''
+  + lib.optionalString pkgs.stdenv.isDarwin ''
     Include ~/.orbstack/ssh/config
+  ''
+  + ''
     Include ~/.ssh/local_config
   '';
 
@@ -65,7 +74,6 @@
         wget
         xz # extract XZ archives
         iay
-        pinentry_mac
         gnupg
         diff-so-fancy
         fzf
@@ -151,14 +159,12 @@
         nix-tree # interactively browse dependency graphs of Nix derivations
         nix-update # swiss-knife for updating nix packages
         nixpkgs-review # review pull-requests on nixpkgs
-        node2nix # generate Nix expressions to build NPM packages
         statix # lints and suggestions for the Nix programming language
         nil # nix lsp
         ;
 
       # GUI
       inherit (pkgs)
-        realvnc-vnc-viewer
         weechat
         yt-dlp
         ;
@@ -171,8 +177,37 @@
     }
     // lib.optionalAttrs pkgs.stdenv.isDarwin {
       inherit (pkgs)
+        pinentry_mac
         cocoapods
         m-cli # useful macOS CLI commands
+        ;
+    }
+    // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+      inherit (pkgs)
+        pinentry-curses
+        ;
+    }
+    // lib.optionalAttrs (
+      builtins.elem pkgs.stdenv.hostPlatform.system [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ]
+    ) {
+      inherit (pkgs)
+        realvnc-vnc-viewer
+        ;
+    }
+    // lib.optionalAttrs (!pkgs.stdenv.isDarwin && config.aaqa.gui.enable) {
+      inherit (pkgs)
+        ghostty
+        vlc
+        zed-editor
+        ;
+    }
+    // lib.optionalAttrs (pkgs.stdenv.hostPlatform.system != "aarch64-linux") {
+      inherit (pkgs)
+        node2nix # generate Nix expressions to build NPM packages
         ;
     }
   );
@@ -194,5 +229,6 @@
     ".local/bin/todo".source = ./bin/todo;
     ".local/bin/zzip".source = ./bin/zzip;
     ".gitignore".source = ./bin/gitignore;
+  };
   };
 }

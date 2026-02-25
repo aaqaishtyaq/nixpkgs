@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+host="${1:-aaqa@192.168.29.94}"
+remote_dir="${2:-/home/aaqa/.config/nixpkgs}"
+flake_target="${3:-ubuntu-arm}"
+
+printf 'Syncing repo to %s:%s\n' "$host" "$remote_dir"
+rsync -az --delete \
+  --exclude '.git/' \
+  --exclude 'result' \
+  ./ "$host:$remote_dir/"
+
+printf 'Building and activating Home Manager target %s on %s\n' "$flake_target" "$host"
+ssh "$host" "
+  # Ensure nix is available in non-interactive remote shells.
+  if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  fi
+  if [ -e \"\$HOME/.nix-profile/etc/profile.d/nix.sh\" ]; then
+    . \"\$HOME/.nix-profile/etc/profile.d/nix.sh\"
+  fi
+  export PATH=\"/nix/var/nix/profiles/default/bin:\$HOME/.nix-profile/bin:\$PATH\"
+
+  command -v nix >/dev/null || {
+    echo 'nix is not on PATH even after bootstrap'
+    exit 127
+  }
+
+  cd '$remote_dir' &&
+  nix --extra-experimental-features 'nix-command flakes' build 'path:.#homeConfigurations.${flake_target}.activationPackage' &&
+  ./result/activate
+"
+
+printf 'Done. Re-login or run: source ~/.zshrc\n'

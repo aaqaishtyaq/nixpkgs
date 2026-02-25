@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -69,35 +74,39 @@ in
     xdg.configFile."ghostty/themes/aladark".text = aladarkTheme;
     xdg.configFile."ghostty/themes/DarkCustom".text = cursorDarkCustomTm;
 
-    xdg.configFile."ghostty/config".text = toKeyValue {
-      mkKeyValue = mkKeyValueDefault { } " = ";
-      listsAsDuplicateKeys = true;
-    } (
-      {
-        font-size = 18;
-        cursor-invert-fg-bg = true;
-        cursor-style = "block";
-        "shell-integration-features" = "no-cursor";
-        font-family = "Berkeley Mono";
-        font-feature = "+liga, -calt";
-        "confirm-close-surface" = false;
-        title = "\" \"";
-        font-thicken = true;
-        "window-title-font-family" = "Berkeley Mono";
-        "window-padding-x" = 10;
-        "window-padding-y" = 5;
-        "shell-integration" = "zsh";
-        "copy-on-select" = "false";
-        theme = "DarkCustom";
-        bell-features = "no-attention,no-audio,system,no-title,no-border";
-        cursor-style-blink = "false";
-      }
-      // optionalAttrs pkgs.stdenv.isDarwin {
-        "macos-titlebar-proxy-icon" = "hidden";
-        "window-colorspace" = "display-p3";
-      }
-    ) + ''
-      keybind = cmd+shift+enter=toggle_fullscreen
-    '';
+    xdg.configFile."ghostty/config".text =
+      toKeyValue
+        {
+          mkKeyValue = mkKeyValueDefault { } " = ";
+          listsAsDuplicateKeys = true;
+        }
+        (
+          {
+            font-size = 18;
+            cursor-invert-fg-bg = true;
+            cursor-style = "block";
+            "shell-integration-features" = "no-cursor";
+            font-family = "Berkeley Mono";
+            font-feature = "+liga, -calt";
+            "confirm-close-surface" = false;
+            title = "\" \"";
+            font-thicken = true;
+            "window-title-font-family" = "Berkeley Mono";
+            "window-padding-x" = 10;
+            "window-padding-y" = 5;
+            "shell-integration" = "zsh";
+            "copy-on-select" = "false";
+            theme = "DarkCustom";
+            bell-features = "no-attention,no-audio,system,no-title,no-border";
+            cursor-style-blink = "false";
+          }
+          // optionalAttrs pkgs.stdenv.isDarwin {
+            "macos-titlebar-proxy-icon" = "hidden";
+            "window-colorspace" = "display-p3";
+          }
+        )
+      + ''
+        keybind = cmd+shift+enter=toggle_fullscreen
+      '';
   };
 }

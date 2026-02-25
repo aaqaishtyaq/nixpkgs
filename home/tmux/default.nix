@@ -1,9 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
-let cfg = config.aaqa.tmux;
-in {
+let
+  cfg = config.aaqa.tmux;
+in
+{
   options.aaqa.tmux = {
     enable = mkEnableOption "set up tmux";
     shortcut = mkOption {

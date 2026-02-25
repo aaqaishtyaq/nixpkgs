@@ -1,10 +1,16 @@
-{config, lib, pkgs, ...}:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.aaqa.hammerspoon;
-in {
+in
+{
   options.aaqa.hammerspoon = {
     enable = mkEnableOption "Enable hammerspoon configurations";
   };

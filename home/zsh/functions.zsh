@@ -60,3 +60,30 @@ cdgr() {
     done
     OLDPWD=$TEMP_PWD
 }
+
+# run `nix develop` in interactive zsh by default
+nix() {
+    if [[ "$1" == "develop" ]]; then
+        shift
+
+        local has_command=0
+        local arg
+        for arg in "$@"; do
+            if [[ "$arg" == "--command" || "$arg" == "-c" ]]; then
+                has_command=1
+                break
+            fi
+        done
+
+        if [[ "$has_command" -eq 0 ]]; then
+            local shell_bin="${SHELL:-zsh}"
+            command nix develop "$@" --command "$shell_bin" -i
+            return $?
+        fi
+
+        command nix develop "$@"
+        return $?
+    fi
+
+    command nix "$@"
+}

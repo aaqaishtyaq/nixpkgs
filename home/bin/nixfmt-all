@@ -1,0 +1,36 @@
+#!/bin/bash
+
+nixfmt_all() {
+    local flake_root
+    local files_list
+
+    flake_root="$PWD"
+    while [[ "$flake_root" != "/" && ! -f "$flake_root/flake.nix" ]]; do
+        flake_root="$(dirname "$flake_root")"
+    done
+
+    if [[ ! -f "$flake_root/flake.nix" ]]; then
+        echo "No flake.nix found in current directory or any parent." >&2
+        return 1
+    fi
+
+    cd "$flake_root" || return 1
+
+    files_list="$(mktemp)"
+    trap 'rm -f "$files_list"' RETURN
+
+    if command -v fd >/dev/null 2>&1; then
+        fd -t f -e nix -0 . > "$files_list"
+    else
+        find . -type f -name '*.nix' -print0 > "$files_list"
+    fi
+
+    if [[ ! -s "$files_list" ]]; then
+        echo "No .nix files found."
+        return 0
+    fi
+
+    xargs -0 -n 200 nix fmt -- < "$files_list"
+}
+
+nixfmt_all "$@"

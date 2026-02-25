@@ -99,6 +99,7 @@
 
           nixd
           nixfmt
+          nixfmt-tree
 
           rustscan
           nmap
@@ -224,6 +225,7 @@
       ".local/bin/logg".source = ./bin/logg;
       ".local/bin/mkdirp".source = ./bin/mkdirp;
       ".local/bin/muxx".source = ./bin/muxx;
+      ".local/bin/nixfmt-all".source = ./bin/nixfmt-all;
       ".local/bin/notes".source = ./bin/notes;
       ".local/bin/now".source = ./bin/now;
       ".local/bin/nvim-mode".source = ./bin/nvim-mode;

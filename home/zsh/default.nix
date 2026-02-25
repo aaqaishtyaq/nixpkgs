@@ -58,6 +58,7 @@ in
         more = "less -R";
         weather = "curl wttr.in";
         nixclean = "nix-collect-garbage -d";
+        nfmt = "nixfmt-all";
         mnt-drive = "udisksctl mount -b /dev/sda1";
       };
       sessionVariables = {

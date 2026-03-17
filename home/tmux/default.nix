@@ -122,6 +122,31 @@ in
         set -g status-left "$wg_session"
         set -g status-right "$wg_kubectx #{prefix_highlight} $wg_is_keys_off $wg_is_zoomed $wg_date"
 
+${optionalString pkgs.stdenv.isLinux ''
+        # Linux-specific status bar: intentionally distinct from macOS and includes host metrics.
+        color_linux_bg="colour236"
+        color_linux_main="colour076"
+        color_linux_warn="colour214"
+        color_linux_text="colour252"
+
+        wg_linux_badge="#[fg=colour16,bg=$color_linux_main,bold] LINUX #[default]"
+        wg_linux_host="#[fg=$color_linux_text,bold]#H#[default]"
+        wg_linux_metrics="#[fg=$color_linux_text]#(/bin/bash $HOME/.config/tmux/linux-status.tmux)#[default]"
+
+        set -g status-position top
+        set -g status-style "fg=$color_linux_text,bg=$color_linux_bg"
+        set -g window-status-format "#[fg=colour249] #I:#W #[default]"
+        set -g window-status-current-format "#[fg=colour16,bg=$color_linux_warn,bold] #I:#W #[default]"
+        set -g window-status-activity-style "fg=$color_linux_warn"
+        set -g pane-active-border-style "fg=$color_linux_main"
+        set -g message-style "fg=colour16,bg=$color_linux_warn"
+        set -g status-left-length 40
+        set -g status-right-length 180
+        set -g status-interval 5
+        set -g status-left "$wg_linux_badge #[fg=$color_linux_text]#S#[default] $wg_linux_host"
+        set -g status-right "$wg_linux_metrics #[fg=$color_linux_text]%H:%M #[fg=colour248]%Y-%m-%d"
+''}
+
         set -g base-index 1
         setw -g pane-base-index 1
 
@@ -184,8 +209,12 @@ in
       '';
     };
 
-    home.file = {
-      ".config/tmux/kube.tmux".source = ./kube.tmux;
-    };
+    home.file =
+      {
+        ".config/tmux/kube.tmux".source = ./kube.tmux;
+      }
+      // optionalAttrs pkgs.stdenv.isLinux {
+        ".config/tmux/linux-status.tmux".source = ./linux-status.tmux;
+      };
   };
 }

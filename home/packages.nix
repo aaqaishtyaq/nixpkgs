@@ -57,6 +57,9 @@
 
     programs.zoxide.enable = true;
 
+    targets.genericLinux.enable = !pkgs.stdenv.isDarwin;
+    fonts.fontconfig.enable = !pkgs.stdenv.isDarwin;
+
     programs.fzf = {
       enableZshIntegration = true;
       enable = true;
@@ -208,7 +211,9 @@
       // lib.optionalAttrs (!pkgs.stdenv.isDarwin && config.aaqa.gui.enable) {
         inherit (pkgs)
           ghostty
+          ibm-plex
           vlc
+          vscode
           zed-editor
           ;
       }

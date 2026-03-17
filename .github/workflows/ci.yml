@@ -24,6 +24,9 @@ on:
           - "true"
           - "false"
 
+permissions:
+  contents: write
+
 jobs:
   build-macos-env:
     name: Build/cache macOS Nix env

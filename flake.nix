@@ -255,6 +255,10 @@
             system = "x86_64-linux";
             hostModules = singleton self.hostProfiles.linuxServer;
           };
+          "linux-vm" = mkLinuxHome {
+            system = "x86_64-linux";
+            hostModules = singleton self.hostProfiles.linuxDesktop;
+          };
           "ubuntu-arm" = mkLinuxHome {
             system = "aarch64-linux";
             hostModules = singleton self.hostProfiles.linuxDesktop;

@@ -11,12 +11,10 @@ local code = "/Applications/Visual Studio Code.app"
 local appList = {
   Ghostty = { binding = "a"},
   Firefox = { binding = "f" },
-  Slack = { binding = "s" },
-  Music = { binding = "m" },
-  ["Brave Browser"] = { binding = "b" },
+  ["Helium"] = { binding = "b" },
   [code] = { binding = "e" },
+  Codex = { binding = "c" },
   Insomnia = { binding = "i" },
-  ["zoom.us"] = { binding = "z" },
   Obsidian = { binding = "o" },
 }
 
@@ -82,5 +80,3 @@ hs.hotkey.bind(hsModifier, ';', function()
         hs.alert.show("No active window")
     end
 end)
-
-

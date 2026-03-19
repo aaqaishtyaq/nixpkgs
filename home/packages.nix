@@ -153,6 +153,7 @@
           terraform
           natscli
           pnpm
+          gh
           ;
 
         inherit (pkgs.unixtools)

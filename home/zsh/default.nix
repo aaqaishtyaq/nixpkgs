@@ -48,6 +48,7 @@ in
         lsa = "ls -lah";
         sl = "ls -al";
         tree = "tree -C";
+        tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
         chmox = "chmod u+x";
         cl = "clear";
         ctags = if pkgs.stdenv.isDarwin then "/usr/local/bin/ctags" else "ctags";

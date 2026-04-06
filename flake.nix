@@ -1,5 +1,5 @@
 {
-  description = "Aaqa's darwin system";
+  description = "Aaqa's systems";
 
   inputs = {
     # Package sets
@@ -30,68 +30,33 @@
   outputs =
     {
       self,
-      darwin,
-      nixpkgs,
-      home-manager,
       flake-utils,
       ...
     }@inputs:
     let
-      inherit (darwin.lib) darwinSystem;
-      inherit (inputs.nixpkgs-unstable.lib)
+      lib = inputs.nixpkgs-unstable.lib;
+      inherit (lib)
         attrValues
-        makeOverridable
+        filterAttrs
+        genAttrs
+        mapAttrs
         optionalAttrs
         singleton
-        mkForce
         ;
 
-      homeStateVersion = "25.05";
+      defaults = {
+        homeStateVersion = "25.05";
+        darwinStateVersion = 5;
+        nixosStateVersion = "25.05";
+      };
 
       primaryUserDefaults = {
         username = "aaqa";
         fullName = "aaqa";
         email = "aaqaishtyaq@gmail.com";
-        nixConfigDirectory = "/Users/aaqa/.config/nixpkgs";
-        homeDirectory = "/Users/aaqa";
       };
-
-      nixpkgsDefaults = {
-        config = {
-          allowUnfree = true;
-          permittedInsecurePackages = [
-            "ruby-2.7.8"
-            "openssl-1.1.1u"
-            "openssl-1.1.1w"
-            "nodejs-16.20.0"
-            "python-2.7.18.7"
-          ];
-        };
-        overlays =
-          attrValues self.overlays
-          ++ singleton (
-            # Sub in x86 version of packages that don't build on Apple Silicon yet
-            final: prev:
-            (optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
-              inherit (final.pkgs-x86)
-                nix-index
-                ;
-            })
-          );
-      };
-    in
-    {
-      # Add some additional functions to `lib`.
-      lib = inputs.nixpkgs-unstable.lib.extend (
-        _: _: {
-          mkDarwinSystem = import ./lib/mkDarwinSystem.nix inputs;
-        }
-      );
-
-      # Overlays --------------------------------------------------------------------------------{{{
 
       overlays = {
-        # Overlays to add different versions `nixpkgs` into package set
         pkgs-master = _: prev: {
           pkgs-master = import inputs.nixpkgs-master {
             inherit (prev.stdenv.hostPlatform) system;
@@ -113,7 +78,6 @@
         apple-silicon =
           _: prev:
           optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
-            # Add access to x86 packages system is running Apple Silicon
             pkgs-x86 = import inputs.nixpkgs-unstable {
               system = "x86_64-darwin";
               inherit (nixpkgsDefaults) config;
@@ -126,7 +90,6 @@
             python313Packages = prev.python313Packages.overrideScope (
               _: pyPrev: {
                 jeepney = pyPrev.jeepney.overrideAttrs (_: {
-                  # Avoid dbus-run-session checks on macOS where session bus is unavailable in build sandbox.
                   installCheckPhase = "true";
                 });
               }
@@ -151,161 +114,167 @@
           };
       };
 
-      darwinModules = {
-        # My configurations
-        darwin-bootstrap = import ./darwin/bootstrap.nix;
-        darwin-general = import ./darwin/general.nix;
-        darwin-homebrew = import ./darwin/homebrew.nix;
-        darwin-pam = import ./darwin/pam.nix;
-
-        users-primaryUser = import ./modules/darwin/users.nix;
-      };
-
-      homeManagerModules = {
-        # My configurations
-        darwin-home = import ./home;
-
-        home-user-info =
-          { lib, ... }:
-          {
-            options.home.user-info = lib.mkOption {
-              type = lib.types.attrsOf (lib.types.nullOr lib.types.str);
-            };
-          };
-      };
-
-      # Host profiles are defined at the top-level `hosts/` directory so they can be
-      # extended later for NixOS machines too.
-      hostProfiles = {
-        powerbook = import ./hosts/powerbook.nix;
-        linuxDesktop = import ./hosts/linux-desktop.nix;
-        linuxServer = import ./hosts/linux-server.nix;
-      };
-
-      darwinConfigurations = {
-        # minimal macOS configurations to bootstrap system
-        bootstrap-arm = makeOverridable darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
-          modules = [
-            ./darwin/bootstrap.nix
-            { nixpkgs = nixpkgsDefaults; }
+      nixpkgsDefaults = {
+        config = {
+          allowUnfree = true;
+          permittedInsecurePackages = [
+            "ruby-2.7.8"
+            "openssl-1.1.1u"
+            "openssl-1.1.1w"
+            "nodejs-16.20.0"
+            "python-2.7.18.7"
           ];
         };
-
-        # My apple silicon macOS work laptop
-        powerbook = makeOverridable self.lib.mkDarwinSystem (
-          primaryUserDefaults
-          // {
-            modules =
-              attrValues self.darwinModules
-              ++ singleton {
-                nixpkgs = nixpkgsDefaults;
-                networking.computerName = "powerbook";
-                networking.hostName = "powerbook";
-                networking.knownNetworkServices = [
-                  "Wi-Fi"
-                  "USB 10/100/1000 LAN"
-                ];
-                nix.registry.my.flake = inputs.self;
-              };
-            inherit homeStateVersion;
-            homeModules = attrValues self.homeManagerModules ++ singleton self.hostProfiles.powerbook;
-          }
-        );
-
-        githubCI = self.darwinConfigurations.powerbook.override {
-          username = "runner";
-          nixConfigDirectory = "/Users/runner/work/nixpkgs/nixpkgs";
-          extraModules = singleton {
-            environment.etc.shells.enable = mkForce false;
-            environment.etc."nix/nix.conf".enable = mkForce false;
-            homebrew.enable = mkForce false;
-          };
-        };
+        overlays =
+          attrValues overlays
+          ++ singleton (
+            final: prev:
+            optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
+              inherit (final.pkgs-x86) nix-index;
+            }
+          );
       };
 
-      homeConfigurations =
+      rawHosts = import ./hosts;
+
+      normalizeHost =
+        name: host:
         let
-          mkLinuxHome =
-            {
-              system,
-              username ? primaryUserDefaults.username,
-              homeDirectory ? "/home/${username}",
-              hostModules ? [ ],
-            }:
-            makeOverridable home-manager.lib.homeManagerConfiguration {
-              pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
-              modules =
-                attrValues self.homeManagerModules
-                ++ hostModules
-                ++ singleton (
-                  { ... }:
-                  {
-                    # Ensure standalone Linux Home Manager targets can use flakes
-                    # without requiring command-line flags on every nix invocation.
-                    home.file.".config/nix/nix.conf".text = ''
-                      experimental-features = nix-command flakes
-                    '';
-                    home.username = username;
-                    home.homeDirectory = homeDirectory;
-                    home.stateVersion = homeStateVersion;
-                    home.user-info = primaryUserDefaults // {
-                      inherit username homeDirectory;
-                      nixConfigDirectory = "${homeDirectory}/.config/nixpkgs";
-                    };
-                  }
-                );
-            };
+          username = host.username or primaryUserDefaults.username;
+          homeDirectory =
+            host.homeDirectory or (
+              if host.kind == "darwin" then "/Users/${username}" else "/home/${username}"
+            );
         in
         {
-          # Configs for non-NixOS Linux systems (e.g. Ubuntu hosts and cloud VMs).
-          # Build and activate on the target host with:
-          # `nix build path:.#homeConfigurations.ubuntu-arm.activationPackage && ./result/activate`
-          "linux-server" = mkLinuxHome {
-            system = "x86_64-linux";
-            hostModules = singleton self.hostProfiles.linuxServer;
-          };
-          "linux-vm" = mkLinuxHome {
-            system = "x86_64-linux";
-            hostModules = singleton self.hostProfiles.linuxDesktop;
-          };
-          "ubuntu-arm" = mkLinuxHome {
-            system = "aarch64-linux";
-            hostModules = singleton self.hostProfiles.linuxDesktop;
+          name = name;
+          kind = host.kind;
+          system = host.system;
+          username = username;
+          fullName = host.fullName or primaryUserDefaults.fullName;
+          email = host.email or primaryUserDefaults.email;
+          hostname = host.hostname or name;
+          homeDirectory = homeDirectory;
+          nixConfigDirectory = host.nixConfigDirectory or "${homeDirectory}/.config/nixpkgs";
+          stateVersion =
+            host.stateVersion or (
+              if host.kind == "darwin" then defaults.darwinStateVersion else defaults.nixosStateVersion
+            );
+          homeStateVersion = host.homeStateVersion or defaults.homeStateVersion;
+          roles = host.roles or [ ];
+          features = host.features or { };
+          extraModules = host.extraModules or [ ];
+          extraHomeModules = host.extraHomeModules or [ ];
+        };
+
+      hosts = mapAttrs normalizeHost rawHosts;
+
+      mkHost = import ./lib/mkHost.nix inputs;
+      builtHosts = mapAttrs (_: host: mkHost { inherit host nixpkgsDefaults; }) hosts;
+
+      hostsByKind = kind: filterAttrs (_: host: host.kind == kind) hosts;
+
+      homeHosts = hostsByKind "home";
+      darwinHosts = hostsByKind "darwin";
+      nixosHosts = hostsByKind "nixos";
+
+      hostDerivation =
+        name:
+        let
+          host = hosts.${name};
+          built = builtHosts.${name};
+        in
+        if host.kind == "home" then
+          built.activationPackage
+        else if host.kind == "darwin" then
+          built.system
+        else
+          built.config.system.build.toplevel;
+
+      hostDrvPath = name: (hostDerivation name).drvPath;
+
+      representativeHosts = [
+        "powerbook"
+        "github-macos"
+        "linux-vm"
+        "ubuntu-arm"
+        "nixos-vm"
+      ];
+    in
+    {
+      lib = lib.extend (
+        _: _: {
+          inherit mkHost;
+        }
+      );
+
+      inherit overlays;
+
+      hosts = hosts;
+
+      darwinModules.default = import ./modules/darwin;
+      nixosModules.default = import ./modules/nixos;
+      homeManagerModules.default = import ./modules/home;
+
+      roleModules = {
+        desktop = import ./modules/roles/desktop.nix;
+        server = import ./modules/roles/server.nix;
+        laptop = import ./modules/roles/laptop.nix;
+        vm = import ./modules/roles/vm.nix;
+        ci = import ./modules/roles/ci.nix;
+      };
+
+      darwinConfigurations =
+        mapAttrs (name: _: builtHosts.${name}) darwinHosts
+        // {
+          bootstrap-arm = inputs.darwin.lib.darwinSystem {
+            system = "aarch64-darwin";
+            modules = [
+              self.darwinModules.default
+              { nixpkgs = nixpkgsDefaults; }
+            ];
           };
 
-          # Config with small modifications needed/desired for CI with GitHub workflow
-          runner = self.homeConfigurations."linux-server".override (old: {
-            modules =
-              old.modules
-              ++ singleton {
-                home.username = mkForce "runner";
-                home.homeDirectory = mkForce "/home/runner";
-                home.user-info.username = mkForce "runner";
-                home.user-info.homeDirectory = mkForce "/home/runner";
-                home.user-info.nixConfigDirectory = mkForce "/home/runner/work/nixpkgs/nixpkgs";
-              };
-          });
+          githubCI = builtHosts.github-macos;
+        };
+
+      nixosConfigurations = mapAttrs (name: _: builtHosts.${name}) nixosHosts;
+
+      homeConfigurations =
+        mapAttrs (name: _: builtHosts.${name}) homeHosts
+        // {
+          runner = builtHosts.github-linux;
         };
     }
     // flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
+        systemHosts = filterAttrs (_: host: host.system == system) hosts;
+
+        mkEvalCheck =
+          name:
+          pkgs.runCommand "eval-${name}" { } ''
+            printf '%s\n' ${lib.escapeShellArg (hostDrvPath name)} > $out
+          '';
+
+        representativeChecks =
+          mapAttrs
+            (name: _: hostDerivation name)
+            (
+              filterAttrs
+                (name: host: builtins.elem name representativeHosts && host.system == system)
+                hosts
+            );
       in
       {
-        # Re-export `nixpkgs-unstable` with overlays.
-        # This is handy in combination with setting `nix.registry.my.flake = inputs.self`.
-        # Allows doing things like `nix run my#prefmanager -- watch --all`
         legacyPackages = pkgs;
-
-        # Enable `nix fmt` by exposing a formatter for each supported system.
         formatter = pkgs.nixfmt;
 
-        # Development shells --------------------------------------------------------------------{{{
-        # Shell environments for development
-        # With `nix.registry.my.flake = inputs.self`, development shells can be created by running,
-        # e.g., `nix develop my#python`.
+        checks =
+          genAttrs (builtins.attrNames systemHosts) mkEvalCheck
+          // representativeChecks;
+
         devShells = {
           python = pkgs.mkShell {
             name = "python314";
@@ -320,12 +289,10 @@
                 poetry
                 python314
                 pyright
-                bigquery-schema-generatori
                 ;
             };
           };
         };
-        # }}}
       }
     );
 }

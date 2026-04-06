@@ -1,13 +1,16 @@
-# Host profiles
+# Hosts
 
-Host-specific Home Manager modules live here.
+Each directory here represents one target machine or runner.
 
 Guideline:
-- Prefer toggling existing modules on/off (`aaqa.*.enable`).
-- Keep host modules thin.
-- Add host-specific settings only when truly required.
+- Keep `default.nix` thin and declarative.
+- Put machine-specific system state next to the host that owns it.
+- Prefer shared roles and feature toggles over host-local duplication.
 
-Current profiles:
-- `powerbook.nix`: macOS laptop profile.
-- `linux-desktop.nix`: Linux desktop profile (GUI enabled).
-- `linux-server.nix`: Linux server profile (GUI disabled).
+Current hosts:
+- `powerbook`: primary macOS host.
+- `github-macos`: GitHub macOS runner target.
+- `github-linux`: GitHub Linux runner target.
+- `linux-vm`: x86_64 Linux Home Manager VM target.
+- `ubuntu-arm`: aarch64 Linux Home Manager VM target.
+- `nixos-vm`: x86_64 NixOS VM target.

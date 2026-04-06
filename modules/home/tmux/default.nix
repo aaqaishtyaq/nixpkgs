@@ -37,7 +37,8 @@ in
         setw -g automatic-rename on
         setw -g aggressive-resize on
 
-        # Change prefix key to C-a, easier to type, same to "screen"
+        # Change prefix key to `, easier to type
+        # use `+e for adding `
         unbind C-b
         set -g prefix `
         bind-key ` last-window

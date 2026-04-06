@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (lib) mkIf elem;
+  inherit (lib) mkDefault mkIf elem;
   caskPresent = cask: lib.any (x: x.name == cask) config.homebrew.casks;
   brewEnabled = config.homebrew.enable;
   homePackages = config.home-manager.users.${config.users.primaryUser.username}.home.packages;
@@ -18,7 +18,7 @@ in
     eval "$(${config.homebrew.brewPrefix}/brew shellenv)"
   '';
 
-  homebrew.enable = true;
+  homebrew.enable = mkDefault true;
   homebrew.onActivation.upgrade = true;
   homebrew.onActivation.cleanup = "zap";
   homebrew.global.brewfile = true;

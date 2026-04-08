@@ -20,6 +20,8 @@ in
       viAlias = true;
       vimAlias = true;
       vimdiffAlias = true;
+      withRuby = false;
+      withPython3 = true;
       # leader = "."
 
       plugins = with pkgs.vimPlugins; [

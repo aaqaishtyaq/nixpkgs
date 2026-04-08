@@ -41,7 +41,6 @@
         genAttrs
         mapAttrs
         optionalAttrs
-        singleton
         ;
 
       defaults = {
@@ -75,15 +74,6 @@
             inherit (nixpkgsDefaults) config;
           };
         };
-        apple-silicon =
-          _: prev:
-          optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
-            pkgs-x86 = import inputs.nixpkgs-unstable {
-              system = "x86_64-darwin";
-              inherit (nixpkgsDefaults) config;
-            };
-          };
-
         darwin-python-workarounds =
           _: prev:
           optionalAttrs prev.stdenv.isDarwin {
@@ -125,14 +115,7 @@
             "python-2.7.18.7"
           ];
         };
-        overlays =
-          attrValues overlays
-          ++ singleton (
-            final: prev:
-            optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
-              inherit (final.pkgs-x86) nix-index;
-            }
-          );
+        overlays = attrValues overlays;
       };
 
       rawHosts = import ./hosts;
@@ -142,9 +125,7 @@
         let
           username = host.username or primaryUserDefaults.username;
           homeDirectory =
-            host.homeDirectory or (
-              if host.kind == "darwin" then "/Users/${username}" else "/home/${username}"
-            );
+            host.homeDirectory or (if host.kind == "darwin" then "/Users/${username}" else "/home/${username}");
         in
         {
           name = name;
@@ -157,9 +138,8 @@
           homeDirectory = homeDirectory;
           nixConfigDirectory = host.nixConfigDirectory or "${homeDirectory}/.config/nixpkgs";
           stateVersion =
-            host.stateVersion or (
-              if host.kind == "darwin" then defaults.darwinStateVersion else defaults.nixosStateVersion
-            );
+            host.stateVersion
+              or (if host.kind == "darwin" then defaults.darwinStateVersion else defaults.nixosStateVersion);
           homeStateVersion = host.homeStateVersion or defaults.homeStateVersion;
           roles = host.roles or [ ];
           features = host.features or { };
@@ -224,27 +204,23 @@
         ci = import ./modules/roles/ci.nix;
       };
 
-      darwinConfigurations =
-        mapAttrs (name: _: builtHosts.${name}) darwinHosts
-        // {
-          bootstrap-arm = inputs.darwin.lib.darwinSystem {
-            system = "aarch64-darwin";
-            modules = [
-              ./modules/darwin/bootstrap.nix
-              { nixpkgs = nixpkgsDefaults; }
-            ];
-          };
-
-          githubCI = builtHosts.github-macos;
+      darwinConfigurations = mapAttrs (name: _: builtHosts.${name}) darwinHosts // {
+        bootstrap-arm = inputs.darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          modules = [
+            ./modules/darwin/bootstrap.nix
+            { nixpkgs = nixpkgsDefaults; }
+          ];
         };
+
+        githubCI = builtHosts.github-macos;
+      };
 
       nixosConfigurations = mapAttrs (name: _: builtHosts.${name}) nixosHosts;
 
-      homeConfigurations =
-        mapAttrs (name: _: builtHosts.${name}) homeHosts
-        // {
-          runner = builtHosts.github-linux;
-        };
+      homeConfigurations = mapAttrs (name: _: builtHosts.${name}) homeHosts // {
+        runner = builtHosts.github-linux;
+      };
     }
     // flake-utils.lib.eachDefaultSystem (
       system:
@@ -258,22 +234,15 @@
             printf '%s\n' ${lib.escapeShellArg (hostDrvPath name)} > $out
           '';
 
-        representativeChecks =
-          mapAttrs
-            (name: _: hostDerivation name)
-            (
-              filterAttrs
-                (name: host: builtins.elem name representativeHosts && host.system == system)
-                hosts
-            );
+        representativeChecks = mapAttrs (name: _: hostDerivation name) (
+          filterAttrs (name: host: builtins.elem name representativeHosts && host.system == system) hosts
+        );
       in
       {
         legacyPackages = pkgs;
         formatter = pkgs.nixfmt;
 
-        checks =
-          genAttrs (builtins.attrNames systemHosts) mkEvalCheck
-          // representativeChecks;
+        checks = genAttrs (builtins.attrNames systemHosts) mkEvalCheck // representativeChecks;
 
         devShells = {
           python = pkgs.mkShell {

@@ -5,6 +5,7 @@
     ../shared/home-user-info.nix
     ../roles
     ./packages.nix
+    ./git/default.nix
     ./zsh/default.nix
     ./tmux/default.nix
     ./nvim/default.nix

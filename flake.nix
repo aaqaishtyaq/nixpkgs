@@ -51,7 +51,7 @@
 
       primaryUserDefaults = {
         username = "aaqa";
-        fullName = "aaqa";
+        fullName = "Aaqa Ishtyaq";
         email = "aaqaishtyaq@gmail.com";
       };
 

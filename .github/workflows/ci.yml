@@ -12,7 +12,7 @@ on:
       - "**"
       - "!**.md"
   schedule:
-    - cron: "5 0 * * *" # Every night at 00:05 UTC
+    - cron: "5 6 * * *" # Every night at 06:05 UTC, after upstream caches have more time to populate
   workflow_dispatch: # Allow manual triggering
     inputs:
       update_inputs:
@@ -27,10 +27,15 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-macos-env:
     name: Build/cache macOS Nix env
     runs-on: macos-latest
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
@@ -55,6 +60,7 @@ jobs:
           nix flake update
 
       - name: Build nix-darwin configuration
+        timeout-minutes: 75
         run: |
           # Prevent conflict between Cachix installed by workflow and the one installed in the config
           nix-env --set-flag priority 1 cachix

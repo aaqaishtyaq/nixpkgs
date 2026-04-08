@@ -6,4 +6,5 @@
     "desktop"
     "vm"
   ];
+  extraHomeModules = [ ../linux-desktop-home.nix ];
 }

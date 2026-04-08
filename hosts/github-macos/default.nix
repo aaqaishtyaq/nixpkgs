@@ -7,6 +7,8 @@
   nixConfigDirectory = "/Users/runner/work/nixpkgs/nixpkgs";
   roles = [
     "desktop"
+    "laptop"
     "ci"
   ];
+  extraModules = [ ../powerbook/system.nix ];
 }

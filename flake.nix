@@ -230,7 +230,7 @@
           bootstrap-arm = inputs.darwin.lib.darwinSystem {
             system = "aarch64-darwin";
             modules = [
-              self.darwinModules.default
+              ./modules/darwin/bootstrap.nix
               { nixpkgs = nixpkgsDefaults; }
             ];
           };

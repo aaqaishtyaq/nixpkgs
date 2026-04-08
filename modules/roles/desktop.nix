@@ -15,12 +15,6 @@ in
       gui.enable = lib.mkDefault true;
 
       zsh.enable = lib.mkDefault true;
-      zsh.extraSessionVariables = {
-        IAY_DISABLE_VCS = "1";
-        IAY_CWD_HOME_COLOR = "magenta";
-        IAY_SHORTEN_CWD = "0";
-        IAY_EXPAND_TILDE = "1";
-      };
       tmux.enable = lib.mkDefault true;
       nvim.enable = lib.mkDefault true;
       dircolors.enable = lib.mkDefault true;

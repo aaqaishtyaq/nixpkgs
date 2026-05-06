@@ -96,6 +96,13 @@ in
         LC_ALL = "en_US.UTF-8";
         LC_CTYPE = "en_US";
         LC_MESSAGES = "en_US";
+        GOPATH = "$HOME/Developer/go";
+        NVM_DIR = "$HOME/.nvm";
+        PNPM_HOME = "$HOME/.local/share/pnpm";
+        KNPATH = "$HOME/Developer/go/src/github.com/aaqa/jottings";
+        XDG_DATA_HOME = "$HOME/.local/share";
+        XDG_CONFIG_HOME = "$HOME/.config";
+        XDG_CACHE_HOME = "$HOME/.cache";
       }
       // cfg.extraSessionVariables;
       initContent = ''
@@ -104,10 +111,15 @@ in
         fi
       ''
       + optionalString pkgs.stdenv.isDarwin ''
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+        _brew_env_cache="''${XDG_CACHE_HOME:-$HOME/.cache}/brew_shellenv"
+        if [[ ! -f "$_brew_env_cache" || /opt/homebrew/bin/brew -nt "$_brew_env_cache" ]]; then
+          mkdir -p "''${XDG_CACHE_HOME:-$HOME/.cache}"
+          /opt/homebrew/bin/brew shellenv >| "$_brew_env_cache"
+        fi
+        source "$_brew_env_cache"
+        unset _brew_env_cache
       ''
       + ''
-        eval "$(direnv hook zsh)"
         ZSH_AUTOSUGGEST_USE_ASYNC=true
 
         export GPG_TTY=$(tty)
@@ -132,33 +144,34 @@ in
         export PLAN9=/usr/local/plan9
         export PATH=$PATH:$PLAN9/bin
         PATH=$PATH:~/Library/Python/3.9/bin
-        # jpeg is keg-only, which means it was not symlinked into /opt/homebrew,
-        # because it conflicts with `jpeg-turbo`.
         export PATH="/opt/homebrew/opt/jpeg/bin:$PATH"
-        # For compilers to find jpeg need to set:
         export LDFLAGS="-L/opt/homebrew/opt/jpeg/lib"
         export CPPFLAGS="-I/opt/homebrew/opt/jpeg/include"
-        # For pkg-config to find jpeg need to set:
         export PKG_CONFIG_PATH="/opt/homebrew/opt/jpeg/lib/pkgconfig"
-
         export HOMEBREW_CASK_OPTS="--appdir=~/Applications --fontdir=~/Library/Fonts"
       ''
       + ''
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-        [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
+        # lazy-load nvm: defers the slow nvm.sh source until nvm/node/npm/npx is first used
+        _nvm_load() {
+          unfunction nvm node npm npx 2>/dev/null
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+        }
+        nvm()  { _nvm_load; nvm  "$@" }
+        node() { _nvm_load; node "$@" }
+        npm()  { _nvm_load; npm  "$@" }
+        npx()  { _nvm_load; npx  "$@" }
 
-        export KNPATH="$HOME/Developer/go/src/github.com/aaqa/jottings"
-        export PATH="$HOME/.local/bin":$PATH
-        export GOPATH="$HOME/Developer/go"
-
-        # pnpm user directory
-        export PNPM_HOME="$HOME/.local/share/pnpm"
-        export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
-        export PATH="$PNPM_HOME:$PATH"
+        [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh"
       '';
     };
+
+    home.sessionPath = [
+      "${config.home.homeDirectory}/.local/bin"
+      "${config.home.homeDirectory}/Developer/go/bin"
+      "${config.home.homeDirectory}/.local/share/pnpm"
+      "${config.home.homeDirectory}/.antigravity/antigravity/bin"
+    ];
 
     home.file = {
       ".config/zsh.d/aliases.zsh".source = ./aliases.zsh;

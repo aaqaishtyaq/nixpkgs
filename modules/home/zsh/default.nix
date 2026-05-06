@@ -123,6 +123,8 @@ in
         ZSH_AUTOSUGGEST_USE_ASYNC=true
 
         export GPG_TTY=$(tty)
+        path=("$GOPATH/bin" $path)
+        export PATH
 
         for file in "${dotDir}/"*.zsh; do
           if [[ -r "$file" ]] && [[ -f "$file" ]]; then

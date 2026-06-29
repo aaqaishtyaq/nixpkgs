@@ -93,7 +93,6 @@
           parallel
           mosh
           gnutar
-          silver-searcher
           universal-ctags
           bat
           git-crypt

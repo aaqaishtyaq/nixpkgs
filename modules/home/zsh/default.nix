@@ -172,6 +172,7 @@ in
       "${config.home.homeDirectory}/.local/bin"
       "${config.home.homeDirectory}/Developer/go/bin"
       "${config.home.homeDirectory}/.local/share/pnpm"
+      "${config.home.homeDirectory}/.local/share/pnpm/bin"
       "${config.home.homeDirectory}/.antigravity/antigravity/bin"
     ];
 

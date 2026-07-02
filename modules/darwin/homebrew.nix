@@ -32,6 +32,7 @@ in
     "beads"
     "dnsmasq"
     "opencode"
+    "rtk"
   ];
 
   # If an app isn't available in the Mac App Store, or the version in the App Store has
@@ -58,6 +59,10 @@ in
     "transmission"
     "ollama-app"
     "zed"
+    "codex"
+    "codex-app"
+    "claude-code"
+    "claude"
   ];
 
   home-manager.sharedModules = [

@@ -27,24 +27,15 @@
     # Some options also set in `../darwin/homebrew.nix`.
     programs.ssh.enable = true;
     programs.ssh.enableDefaultConfig = false;
-    programs.ssh.matchBlocks."*" = {
-      controlPath = "~/.ssh/%C"; # ensures the path is unique but also fixed length
+    programs.ssh.settings = {
+      ControlPath = "~/.ssh/%C";
     };
     programs.ssh.extraConfig = ''
-      Host spt-ams-1
-          HostName spt-ams-1.aaqa.dev
-          User ubuntu
-      Host ovh-lon-1
-          HostName ovh-lon-1.aaqa.dev
-          User ubuntu
       Host sirius
           HostName sirius.aaqa.dev
-          User ubuntu
-      Host galactica
-          HostName galactica.aaqa.dev
           User aaqaishtyaq
-      Host gcp-dev-vm
-          HostName 35.200.217.170
+      Host gcp
+          HostName gcp.aaqa.dev
           User aaqaishtyaq
 
     ''

@@ -143,6 +143,8 @@ in
         RPROMPT=""
       ''
       + optionalString pkgs.stdenv.isDarwin ''
+        source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
         export PLAN9=/usr/local/plan9
         export PATH=$PATH:$PLAN9/bin
         PATH=$PATH:~/Library/Python/3.9/bin

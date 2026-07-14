@@ -27,7 +27,7 @@
     # Some options also set in `../darwin/homebrew.nix`.
     programs.ssh.enable = true;
     programs.ssh.enableDefaultConfig = false;
-    programs.ssh.settings = {
+    programs.ssh.settings."*" = {
       ControlPath = "~/.ssh/%C";
     };
     programs.ssh.extraConfig = ''

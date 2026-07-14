@@ -93,6 +93,17 @@
             );
           };
 
+        # nixpkgs' Darwin cctools/ld (rebuilt against Clang 21's -fstrict-return
+        # default) segfaults (Trace/BPT trap: 5) linking terminal-notifier as of
+        # ~2026-07-14 nixpkgs-unstable/master. Borrow the binary from the
+        # pre-regression nixpkgs-stable snapshot until upstream fixes it.
+        # TODO: drop once https://github.com/NixOS/nixpkgs cctools-darwin is fixed.
+        darwin-terminal-notifier-workaround =
+          final: prev:
+          optionalAttrs prev.stdenv.isDarwin {
+            terminal-notifier = final.pkgs-stable.terminal-notifier;
+          };
+
         direnv-cgo-fix =
           _: prev:
           optionalAttrs prev.stdenv.isDarwin {

@@ -8,6 +8,12 @@
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
+    # Pin the prompt and its async shell integration to the branch under review.
+    iay = {
+      url = "github:aaqaishtyaq/iay/agent/async-prompt-vcs-regression";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # Environment/system management
     darwin = {
       url = "github:lnl7/nix-darwin/master";
@@ -73,6 +79,9 @@
             inherit (prev.stdenv.hostPlatform) system;
             inherit (nixpkgsDefaults) config;
           };
+        };
+        iay = _: prev: {
+          iay = inputs.iay.packages.${prev.stdenv.hostPlatform.system}.default;
         };
         darwin-python-workarounds =
           _: prev:

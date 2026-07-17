@@ -172,16 +172,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1784193055,
-        "narHash": "sha256-lLMMmR6NAS7bZIaXdR+lVP597enEf8f6rGtPr31fh4k=",
+        "lastModified": 1784279493,
+        "narHash": "sha256-//5g+dgVijv6oxOeGfbh179D1vNNj1GIbxDr/dABC5o=",
         "owner": "aaqaishtyaq",
         "repo": "iay",
-        "rev": "2c87c1b5dcdef640b36140b7711703fd33ce7fb5",
+        "rev": "51138fcc0bde898cbd4e8925e59459e3730c007f",
         "type": "github"
       },
       "original": {
         "owner": "aaqaishtyaq",
-        "ref": "agent/async-prompt-vcs-regression",
         "repo": "iay",
         "type": "github"
       }

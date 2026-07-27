@@ -31,6 +31,7 @@ in
   homebrew.brews = [
     "beads"
     "dnsmasq"
+    "herdr"
     "opencode"
     "rtk"
     "stripe"

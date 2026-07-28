@@ -1,0 +1,106 @@
+# Herdr config — keybindings aligned with local tmux (` as prefix).
+# Source muscle memory: modules/home/tmux/default.nix
+#
+# Reload after edits:  herdr server reload-config
+# Help panel:          prefix+?
+
+onboarding = false
+
+[keys]
+# Match tmux: unbind C-b; set -g prefix `
+prefix = "backtick"
+
+# ── Session / attach ──────────────────────────────────────────────
+# tmux: bind d detach
+detach = "prefix+d"
+# tmux: bind Q kill-session  → close whole workspace
+close_workspace = "prefix+shift+q"
+# herdr-only (was default prefix+q for detach)
+# leave settings / help on defaults that don't fight tmux habits
+settings = "prefix+s"
+help = "prefix+?"
+# was prefix+shift+r (tmux uses R for rename-session)
+reload_config = "prefix+ctrl+r"
+open_notification_target = "prefix+o"
+
+# ── Tabs ≈ tmux windows ───────────────────────────────────────────
+# tmux: bind c new-window
+new_tab = "prefix+c"
+# tmux: bind r rename-window  (herdr default was prefix+shift+t; r was resize)
+rename_tab = "prefix+r"
+# tmux default next/prev + indexed 1-based (base-index 1)
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+switch_tab = "prefix+1..9"
+# tmux: bind X kill-window
+close_tab = "prefix+shift+x"
+# tmux: bind-key ` last-window — herdr reserves prefix+prefix for a literal `
+# (so `` inserts `). Jump back with semicolon instead.
+last_pane = "prefix+;"
+
+# ── Workspaces ≈ tmux sessions ────────────────────────────────────
+# tmux: bind R rename-session
+rename_workspace = "prefix+shift+r"
+new_workspace = "prefix+shift+n"
+workspace_picker = "prefix+w"
+goto = "prefix+g"
+new_worktree = "prefix+shift+g"
+
+# ── Panes ─────────────────────────────────────────────────────────
+# tmux: bind | split-window -h  (side by side)
+#       bind - split-window -v  (stacked)
+# Keep herdr's v as a second chord for side-by-side splits.
+split_vertical = ["prefix+|", "prefix+v"]
+split_horizontal = "prefix+minus"
+# tmux: bind x kill-pane
+close_pane = "prefix+x"
+zoom = "prefix+z"
+# tmux extraConfig rebound h/j/k/l to *resize*; herdr focuses with hjkl
+# (better default) and uses an explicit resize mode instead.
+# tmux rename stole r, so resize mode moves to +
+resize_mode = "prefix+plus"
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+swap_pane_left = "prefix+shift+h"
+swap_pane_down = "prefix+shift+j"
+swap_pane_up = "prefix+shift+k"
+swap_pane_right = "prefix+shift+l"
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+rename_pane = "prefix+shift+p"
+# tmux: bind-key e send-prefix — covered by pressing ` twice (literal `).
+# Keep herdr scrollback editor on e.
+edit_scrollback = "prefix+e"
+copy_mode = "prefix+["
+
+# ── UI ────────────────────────────────────────────────────────────
+# tmux: bind C-s toggle status bar  → sidebar
+toggle_sidebar = "prefix+ctrl+s"
+
+# Navigate-mode (inside prefix+w / goto) — vim keys, same as herdr defaults
+navigate_workspace_up = "up"
+navigate_workspace_down = "down"
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+[terminal]
+# Match tmux default-command zsh / cwd retention habits
+new_cwd = "follow"
+shell_mode = "auto"
+
+[ui]
+# tmux mouse on
+mouse_capture = true
+copy_on_select = true
+# base-index 1 is covered by switch_tab = prefix+1..9
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "bottom-right"

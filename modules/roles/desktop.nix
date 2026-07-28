@@ -16,6 +16,7 @@ in
 
       zsh.enable = lib.mkDefault true;
       tmux.enable = lib.mkDefault true;
+      herdr.enable = lib.mkDefault true;
       nvim.enable = lib.mkDefault true;
       dircolors.enable = lib.mkDefault true;
       alacritty.enable = lib.mkDefault false;

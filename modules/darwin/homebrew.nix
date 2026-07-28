@@ -63,7 +63,7 @@ in
     "zed"
     "codex"
     "codex-app"
-    "claude-code"
+    # claude-code: managed via home-manager (pkgs.claude-code)
     "claude"
   ];
 

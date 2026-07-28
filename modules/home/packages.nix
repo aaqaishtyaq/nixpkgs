@@ -132,6 +132,7 @@
         # Dev stuff
         inherit (pkgs)
           cloc # source code line counter
+          claude-code
           nodejs
           typescript
           kubectl

@@ -5,6 +5,7 @@
     ../shared/home-user-info.nix
     ../roles
     ./packages.nix
+    ./mac-disk-gc.nix
     ./git/default.nix
     ./zsh/default.nix
     ./tmux/default.nix

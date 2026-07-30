@@ -133,7 +133,11 @@ in
         done
 
         if [ ! "$TERM" = dumb ]; then
-          source ${pkgs.iay}/share/iay/iay.zsh
+          autoload -Uz add-zsh-hook
+          _iay_prompt() {
+            PROMPT="$(iay -zm)"
+          }
+          add-zsh-hook precmd _iay_prompt
         fi
 
         RPROMPT=""

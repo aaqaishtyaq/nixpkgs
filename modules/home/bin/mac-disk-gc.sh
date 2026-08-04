@@ -5,6 +5,10 @@
 # compaction here (that needs stopping VMs; run manually/less often).
 set -uo pipefail
 
+# launchd agents get a minimal PATH (no Homebrew/nix/orbstack dirs) — extend
+# it explicitly so docker/xcrun/etc resolve the same as in an interactive shell.
+export PATH="$HOME/.local/bin:$HOME/.orbstack/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
+
 LOG_PREFIX="[mac-disk-gc $(date '+%Y-%m-%d %H:%M:%S')]"
 log() { echo "$LOG_PREFIX $*"; }
 
@@ -16,6 +20,17 @@ before=$(free_gb)
 log "starting, free=${before}G"
 
 # --- Docker / OrbStack: build cache + dangling images (safe, CI-reproducible) ---
+# OrbStack isn't a login item, so its daemon is often not running when this
+# fires. Launch it and wait briefly for the socket before giving up.
+if command -v docker >/dev/null 2>&1 && ! docker system df >/dev/null 2>&1; then
+  log "docker: daemon not up, launching OrbStack"
+  open -g -a OrbStack >/dev/null 2>&1 || true
+  for _ in $(seq 1 30); do
+    docker system df >/dev/null 2>&1 && break
+    sleep 2
+  done
+fi
+
 if command -v docker >/dev/null 2>&1 && docker system df >/dev/null 2>&1; then
   log "docker: pruning build cache"
   docker builder prune -a -f >/dev/null 2>&1

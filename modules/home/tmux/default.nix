@@ -143,10 +143,10 @@ ${optionalString pkgs.stdenv.isLinux ''
         set -g window-status-activity-style "fg=$color_linux_main"
         set -g pane-active-border-style "fg=$color_linux_main"
         set -g message-style "fg=$color_linux_main,bg=$color_dark"
-        set -g status-left-length 40
+        set -g status-left-length 20
         set -g status-right-length 100
-        set -g status-left "$wg_session $wg_linux_host"
-        set -g status-right "$wg_kubectx $wg_is_keys_off $wg_is_zoomed"
+        set -g status-left "$wg_session"
+        set -g status-right "$wg_kubectx $wg_is_keys_off $wg_is_zoomed $wg_linux_host"
 ''}
 
         set -g base-index 1

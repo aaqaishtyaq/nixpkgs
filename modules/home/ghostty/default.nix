@@ -108,5 +108,13 @@ in
       + ''
         keybind = cmd+shift+enter=toggle_fullscreen
       '';
+
+    # Ghostty advertises D-Bus activation.  On generic Linux, systemd does
+    # not search the Nix profile's share/systemd/user directory, so expose
+    # the packaged unit through Home Manager's normal user-unit path.
+    home.file = lib.mkIf pkgs.stdenv.isLinux {
+      ".config/systemd/user/app-com.mitchellh.ghostty.service".source =
+        "${pkgs.ghostty}/share/systemd/user/app-com.mitchellh.ghostty.service";
+    };
   };
 }

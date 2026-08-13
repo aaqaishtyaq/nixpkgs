@@ -136,7 +136,6 @@ ${optionalString pkgs.stdenv.isLinux ''
         color_linux_main="${cfg.accentColor}"
 
         wg_session="#[fg=$color_linux_main, bold] #S #[default]"
-        wg_linux_host="#[fg=$color_status_text,bold]#H#[default]"
 
         set -g status-style "fg=$color_status_text"
         set -g window-status-current-format "#[fg=$color_linux_main,bold] #I:#W* #[fg=$color_linux_main,bg=$color_dark]#[default]"
@@ -146,7 +145,7 @@ ${optionalString pkgs.stdenv.isLinux ''
         set -g status-left-length 20
         set -g status-right-length 100
         set -g status-left "$wg_session"
-        set -g status-right "$wg_kubectx $wg_is_keys_off $wg_is_zoomed $wg_linux_host"
+        set -g status-right "$wg_kubectx $wg_is_keys_off $wg_is_zoomed"
 ''}
 
         set -g base-index 1

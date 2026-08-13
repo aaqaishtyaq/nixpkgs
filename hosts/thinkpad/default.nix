@@ -6,7 +6,7 @@
   extraHomeModules = [
     ../linux-desktop-home.nix
     (
-      { pkgs, ... }:
+      { pkgs, lib, ... }:
       {
         home.packages = [ pkgs.gh ];
 
@@ -14,6 +14,9 @@
         # are visually distinct from other Linux hosts in tmux/cmux.
         aaqa.tmux.accentColor = "colour5";
         aaqa.ghostty.accentColor = "#ff5fd7";
+
+        # Shorten the cwd in the prompt, overriding linux-desktop-home.nix's shared default.
+        aaqa.zsh.extraSessionVariables.IAY_SHORTEN_CWD = lib.mkForce "1";
 
         programs.git.settings.credential = {
           "https://github.com".helper = [

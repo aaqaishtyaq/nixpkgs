@@ -15,8 +15,11 @@
         aaqa.tmux.accentColor = "colour5";
         aaqa.ghostty.accentColor = "#ff5fd7";
 
-        # Shorten the cwd in the prompt, overriding linux-desktop-home.nix's shared default.
+        # Shorten the cwd and enable git status in the prompt, overriding
+        # linux-desktop-home.nix's shared defaults (matches macOS, which
+        # leaves VCS enabled).
         aaqa.zsh.extraSessionVariables.IAY_SHORTEN_CWD = lib.mkForce "1";
+        aaqa.zsh.extraSessionVariables.IAY_DISABLE_VCS = lib.mkForce "0";
 
         programs.git.settings.credential = {
           "https://github.com".helper = [

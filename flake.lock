@@ -192,15 +192,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1785397373,
-        "narHash": "sha256-R9xM0tMEYdJbhpCr38cBMvRbfDJ/I9z0SPlw07rLQ6U=",
+        "lastModified": 1786643989,
+        "narHash": "sha256-eb5J+9AFKU/rQEcwHrVNIaQXAsOqfmI8JPKfNMsTGrg=",
         "owner": "aaqaishtyaq",
         "repo": "iay",
-        "rev": "af3ba29685e2dc8dbe05f88bb0e7d2f68c13e972",
+        "rev": "b9ba941ad9669900a006bf4f13cd36cd82670fb1",
         "type": "github"
       },
       "original": {
         "owner": "aaqaishtyaq",
+        "ref": "v0.5.1",
         "repo": "iay",
         "type": "github"
       }

@@ -9,7 +9,7 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     iay = {
-      url = "github:aaqaishtyaq/iay";
+      url = "github:aaqaishtyaq/iay/v0.5.1";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 

@@ -59,9 +59,7 @@ _kube_tmux_file_newer_than() {
 
 _kube_tmux_update_cache() {
   if ! _kube_tmux_binary_check "${KUBE_TMUX_BINARY}"; then
-    # No ability to fetch context/namespace; display N/A.
-    KUBE_TMUX_CONTEXT="BINARY-N/A"
-    KUBE_TMUX_NAMESPACE="N/A"
+    # No ability to fetch context/namespace; leave unset so the widget renders nothing.
     return
   fi
 
@@ -96,8 +94,7 @@ _kube_tmux_get_context_ns() {
 
   KUBE_TMUX_CONTEXT="$(${KUBE_TMUX_BINARY} config current-context 2>/dev/null)"
   if [[ -z "${KUBE_TMUX_CONTEXT}" ]]; then
-    KUBE_TMUX_CONTEXT="N/A"
-    KUBE_TMUX_NAMESPACE="N/A"
+    # No current context; leave unset so the widget renders nothing.
     return
   elif [[ "${KUBE_TMUX_NS_ENABLE}" == true ]]; then
     KUBE_TMUX_NAMESPACE="$(${KUBE_TMUX_BINARY} config view --minify --output 'jsonpath={..namespace}' 2>/dev/null)"
@@ -108,6 +105,9 @@ _kube_tmux_get_context_ns() {
 
 kube_tmux() {
   _kube_tmux_update_cache
+
+  # Nothing to show (no kubectl, no readable kubeconfig, no current context).
+  [[ -z "${KUBE_TMUX_CONTEXT}" ]] && return
 
   local KUBE_TMUX
 

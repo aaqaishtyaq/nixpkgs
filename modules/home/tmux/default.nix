@@ -127,14 +127,16 @@ in
         set -g pane-active-border-style "fg=$color_main"
 
         set -g status-left "$wg_session"
-        set -g status-right "$wg_kubectx #{prefix_highlight} $wg_is_keys_off $wg_is_zoomed $wg_date"
+        set -g status-right "$wg_kubectx $wg_is_keys_off $wg_is_zoomed $wg_date"
 
 ${optionalString pkgs.stdenv.isLinux ''
         # Linux-specific status bar: same minimal styling as macOS (see above),
         # accented with $color_linux_main so hosts are distinguishable at a
-        # glance, with extra host/metrics context macOS doesn't need.
+        # glance, with extra host/metrics context macOS doesn't need. No
+        # date/time (that's already visible in the desktop panel).
         color_linux_main="${cfg.accentColor}"
 
+        wg_session="#[fg=$color_linux_main, bold] #S #[default]"
         wg_linux_host="#[fg=$color_status_text,bold]#H#[default]"
         wg_linux_metrics="#(/bin/bash $HOME/.config/tmux/linux-status.tmux)"
 
@@ -147,7 +149,7 @@ ${optionalString pkgs.stdenv.isLinux ''
         set -g status-right-length 180
         set -g status-interval 5
         set -g status-left "$wg_session $wg_linux_host"
-        set -g status-right "$wg_linux_metrics $wg_kubectx #{prefix_highlight} $wg_is_keys_off $wg_is_zoomed $wg_date"
+        set -g status-right "$wg_linux_metrics $wg_kubectx $wg_is_keys_off $wg_is_zoomed"
 ''}
 
         set -g base-index 1

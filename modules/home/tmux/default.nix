@@ -207,6 +207,12 @@ ${optionalString pkgs.stdenv.isLinux ''
 
         setw -g mode-keys vi
         set-option -g default-command "zsh"
+
+${optionalString pkgs.stdenv.isDarwin ''
+        # Paste an image from the macOS clipboard into the current pane as
+        # a file path (Ghostty/Alacritty have no native image-paste support).
+        bind P run-shell "/bin/bash $HOME/.config/tmux/paste-image.sh"
+''}
       '';
     };
 
@@ -216,6 +222,9 @@ ${optionalString pkgs.stdenv.isLinux ''
       }
       // optionalAttrs pkgs.stdenv.isLinux {
         ".config/tmux/linux-status.tmux".source = ./linux-status.tmux;
+      }
+      // optionalAttrs pkgs.stdenv.isDarwin {
+        ".config/tmux/paste-image.sh".source = ./paste-image.sh;
       };
   };
 }

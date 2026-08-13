@@ -37,6 +37,9 @@
       Host gcp
           HostName gcp.aaqa.dev
           User aaqaishtyaq
+      Host fedora-cosmic
+          HostName 192.168.0.27
+          User aaqa
 
     ''
     + lib.optionalString pkgs.stdenv.isDarwin ''
@@ -133,6 +136,8 @@
         inherit (pkgs)
           cloc # source code line counter
           claude-code
+          codex
+          grok-cli
           nodejs
           typescript
           kubectl
@@ -188,21 +193,10 @@
           pinentry-curses
           ;
       }
-      //
-        lib.optionalAttrs
-          (builtins.elem pkgs.stdenv.hostPlatform.system [
-            "x86_64-linux"
-            "x86_64-darwin"
-            "aarch64-darwin"
-          ])
-          {
-            inherit (pkgs)
-              realvnc-vnc-viewer
-              ;
-          }
       // lib.optionalAttrs (!pkgs.stdenv.isDarwin && config.aaqa.gui.enable) {
         inherit (pkgs)
           ghostty
+          helium
           ibm-plex
           vlc
           vscode

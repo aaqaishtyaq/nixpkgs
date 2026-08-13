@@ -30,6 +30,12 @@
       url = "github:nix-community/comma";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    # Helium browser isn't in nixpkgs yet; use a community flake until it lands.
+    helium = {
+      url = "github:oxcl/nix-flake-helium-browser";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   outputs =
@@ -82,6 +88,11 @@
         iay = _: prev: {
           iay = inputs.iay.packages.${prev.stdenv.hostPlatform.system}.default;
         };
+        helium =
+          _: prev:
+          optionalAttrs (builtins.elem prev.stdenv.hostPlatform.system [ "x86_64-linux" "aarch64-linux" ]) {
+            helium = inputs.helium.packages.${prev.stdenv.hostPlatform.system}.default;
+          };
         darwin-python-workarounds =
           _: prev:
           optionalAttrs prev.stdenv.isDarwin {

@@ -6,5 +6,5 @@
   linux-vm = import ./linux-vm;
   ubuntu-arm = import ./ubuntu-arm;
   nixos-vm = import ./nixos-vm;
-  fedora-cosmic = import ./fedora-cosmic;
+  thinkpad = import ./thinkpad;
 }

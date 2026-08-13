@@ -37,7 +37,7 @@
       Host gcp
           HostName gcp.aaqa.dev
           User aaqaishtyaq
-      Host fedora-cosmic
+      Host thinkpad
           HostName 192.168.0.27
           User aaqa
 

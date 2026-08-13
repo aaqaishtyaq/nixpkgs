@@ -19,6 +19,12 @@ in
       default = "b";
       example = "a";
     };
+    accentColor = mkOption {
+      type = types.str;
+      description = "Accent color used for the Linux status bar (active window, borders, messages), so hosts can be told apart at a glance";
+      default = "colour076";
+      example = "colour5";
+    };
   };
   config = mkIf cfg.enable {
     programs.tmux = {
@@ -124,28 +130,24 @@ in
         set -g status-right "$wg_kubectx #{prefix_highlight} $wg_is_keys_off $wg_is_zoomed $wg_date"
 
 ${optionalString pkgs.stdenv.isLinux ''
-        # Linux-specific status bar: intentionally distinct from macOS and includes host metrics.
-        color_linux_bg="colour236"
-        color_linux_main="colour076"
-        color_linux_warn="colour214"
-        color_linux_text="colour252"
+        # Linux-specific status bar: same minimal styling as macOS (see above),
+        # accented with $color_linux_main so hosts are distinguishable at a
+        # glance, with extra host/metrics context macOS doesn't need.
+        color_linux_main="${cfg.accentColor}"
 
-        wg_linux_badge="#[fg=colour16,bg=$color_linux_main,bold] LINUX #[default]"
-        wg_linux_host="#[fg=$color_linux_text,bold]#H#[default]"
-        wg_linux_metrics="#[fg=$color_linux_text]#(/bin/bash $HOME/.config/tmux/linux-status.tmux)#[default]"
+        wg_linux_host="#[fg=$color_status_text,bold]#H#[default]"
+        wg_linux_metrics="#(/bin/bash $HOME/.config/tmux/linux-status.tmux)"
 
-        set -g status-position top
-        set -g status-style "fg=$color_linux_text,bg=$color_linux_bg"
-        set -g window-status-format "#[fg=colour249] #I:#W #[default]"
-        set -g window-status-current-format "#[fg=colour16,bg=$color_linux_warn,bold] #I:#W #[default]"
-        set -g window-status-activity-style "fg=$color_linux_warn"
+        set -g status-style "fg=$color_status_text"
+        set -g window-status-current-format "#[fg=$color_linux_main,bold] #I:#W* #[fg=$color_linux_main,bg=$color_dark]#[default]"
+        set -g window-status-activity-style "fg=$color_linux_main"
         set -g pane-active-border-style "fg=$color_linux_main"
-        set -g message-style "fg=colour16,bg=$color_linux_warn"
+        set -g message-style "fg=$color_linux_main,bg=$color_dark"
         set -g status-left-length 40
         set -g status-right-length 180
         set -g status-interval 5
-        set -g status-left "$wg_linux_badge #[fg=$color_linux_text]#S#[default] $wg_linux_host"
-        set -g status-right "$wg_linux_metrics #[fg=$color_linux_text]%H:%M #[fg=colour248]%Y-%m-%d"
+        set -g status-left "$wg_session $wg_linux_host"
+        set -g status-right "$wg_linux_metrics $wg_kubectx #{prefix_highlight} $wg_is_keys_off $wg_is_zoomed $wg_date"
 ''}
 
         set -g base-index 1

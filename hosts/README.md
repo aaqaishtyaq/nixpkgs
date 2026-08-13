@@ -15,4 +15,4 @@ Current hosts:
 - `linux-vm`: x86_64 Linux Home Manager VM target.
 - `ubuntu-arm`: aarch64 Linux Home Manager VM target.
 - `nixos-vm`: x86_64 NixOS VM target.
-- `fedora-cosmic`: x86_64 Linux Home Manager target — Fedora with COSMIC desktop, real hardware.
+- `thinkpad`: x86_64 Linux Home Manager target — Fedora with KDE desktop, real hardware.

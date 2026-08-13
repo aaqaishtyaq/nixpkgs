@@ -132,13 +132,11 @@ in
 ${optionalString pkgs.stdenv.isLinux ''
         # Linux-specific status bar: same minimal styling as macOS (see above),
         # accented with $color_linux_main so hosts are distinguishable at a
-        # glance, with extra host/metrics context macOS doesn't need. No
-        # date/time (that's already visible in the desktop panel).
+        # glance. No date/time or system metrics (already in the desktop panel).
         color_linux_main="${cfg.accentColor}"
 
         wg_session="#[fg=$color_linux_main, bold] #S #[default]"
         wg_linux_host="#[fg=$color_status_text,bold]#H#[default]"
-        wg_linux_metrics="#(/bin/bash $HOME/.config/tmux/linux-status.tmux)"
 
         set -g status-style "fg=$color_status_text"
         set -g window-status-current-format "#[fg=$color_linux_main,bold] #I:#W* #[fg=$color_linux_main,bg=$color_dark]#[default]"
@@ -146,10 +144,9 @@ ${optionalString pkgs.stdenv.isLinux ''
         set -g pane-active-border-style "fg=$color_linux_main"
         set -g message-style "fg=$color_linux_main,bg=$color_dark"
         set -g status-left-length 40
-        set -g status-right-length 180
-        set -g status-interval 5
+        set -g status-right-length 100
         set -g status-left "$wg_session $wg_linux_host"
-        set -g status-right "$wg_linux_metrics $wg_kubectx $wg_is_keys_off $wg_is_zoomed"
+        set -g status-right "$wg_kubectx $wg_is_keys_off $wg_is_zoomed"
 ''}
 
         set -g base-index 1
@@ -223,9 +220,6 @@ ${optionalString pkgs.stdenv.isDarwin ''
     home.file =
       {
         ".config/tmux/kube.tmux".source = ./kube.tmux;
-      }
-      // optionalAttrs pkgs.stdenv.isLinux {
-        ".config/tmux/linux-status.tmux".source = ./linux-status.tmux;
       }
       // optionalAttrs pkgs.stdenv.isDarwin {
         ".config/tmux/paste-image.sh".source = ./paste-image.sh;

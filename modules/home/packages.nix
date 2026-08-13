@@ -189,6 +189,16 @@
         inherit (pkgs)
           pinentry-curses
           ;
+
+        # Personal-tap tools on Darwin (see ../darwin/homebrew.nix homebrew.brews),
+        # now published in nixpkgs proper.
+        inherit (pkgs)
+          rtk
+          beads
+          opencode
+          herdr
+          ;
+        stripe = pkgs.stripe-cli;
       }
       // lib.optionalAttrs (!pkgs.stdenv.isDarwin && config.aaqa.gui.enable) {
         inherit (pkgs)
@@ -199,6 +209,8 @@
           vscode
           zed-editor
           ;
+        transmission = pkgs.transmission_4;
+        inherit (pkgs.nerd-fonts) blex-mono iosevka;
       }
     );
 

@@ -179,6 +179,7 @@ in
       "${config.home.homeDirectory}/.local/share/pnpm"
       "${config.home.homeDirectory}/.local/share/pnpm/bin"
       "${config.home.homeDirectory}/.antigravity/antigravity/bin"
+      "${config.home.homeDirectory}/.npm-global/bin"
     ];
 
     home.file = {

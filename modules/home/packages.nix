@@ -215,6 +215,12 @@
     );
 
     home.file = {
+      # npm's global installs default to writing into the Nix store (read-only) or
+      # wherever the nodejs derivation's prefix happens to point. Redirect global
+      # installs to a plain writable dir under $HOME instead; its bin/ is added to
+      # PATH via `home.sessionPath` in modules/home/zsh/default.nix.
+      ".npmrc".text = "prefix=${config.home.homeDirectory}/.npm-global\n";
+
       ".local/bin/alatheme".source = ./bin/alatheme;
       ".local/bin/datepath".source = ./bin/datepath;
       ".local/bin/git-checkout-ss".source = ./bin/git-checkout-ss;

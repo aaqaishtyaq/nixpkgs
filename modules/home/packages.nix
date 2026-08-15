@@ -38,7 +38,7 @@
           HostName gcp.aaqa.dev
           User aaqaishtyaq
       Host thinkpad
-          HostName 192.168.0.27
+          HostName thinkpad.tailnet-ff04.ts.net
           User aaqa
 
     ''

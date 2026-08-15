@@ -215,12 +215,6 @@
     );
 
     home.file = {
-      # npm's global installs default to writing into the Nix store (read-only) or
-      # wherever the nodejs derivation's prefix happens to point. Redirect global
-      # installs to a plain writable dir under $HOME instead; its bin/ is added to
-      # PATH via `home.sessionPath` in modules/home/zsh/default.nix.
-      ".npmrc".text = "prefix=${config.home.homeDirectory}/.npm-global\n";
-
       ".local/bin/alatheme".source = ./bin/alatheme;
       ".local/bin/datepath".source = ./bin/datepath;
       ".local/bin/git-checkout-ss".source = ./bin/git-checkout-ss;
@@ -238,6 +232,15 @@
       ".local/bin/todo".source = ./bin/todo;
       ".local/bin/zzip".source = ./bin/zzip;
       ".gitignore".source = ./bin/gitignore;
+    }
+    // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+      # Non-Darwin hosts run node/npm from the Nix-store `nodejs` package, whose
+      # default global prefix is read-only. Redirect global installs to a plain
+      # writable dir under $HOME instead; its bin/ is added to PATH via
+      # `home.sessionPath` in modules/home/zsh/default.nix. Skipped on Darwin,
+      # where node/npm come from Homebrew (writable prefix already) and ~/.npmrc
+      # may hold registry credentials we must not overwrite.
+      ".npmrc".text = "prefix=${config.home.homeDirectory}/.npm-global\n";
     };
   };
 }

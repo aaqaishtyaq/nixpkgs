@@ -49,6 +49,7 @@ let
               hostname
               roles
               features
+              sessionVariables
               ;
           };
         }
@@ -122,6 +123,7 @@ if host.kind == "darwin" then
             hostname
             roles
             features
+            sessionVariables
             ;
         };
       }
@@ -146,6 +148,7 @@ else if host.kind == "nixos" then
             hostname
             roles
             features
+            sessionVariables
             ;
         };
       }

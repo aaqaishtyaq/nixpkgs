@@ -173,6 +173,7 @@
           homeStateVersion = host.homeStateVersion or defaults.homeStateVersion;
           roles = host.roles or [ ];
           features = host.features or { };
+          sessionVariables = host.sessionVariables or { };
           extraModules = host.extraModules or [ ];
           extraHomeModules = host.extraHomeModules or [ ];
         };

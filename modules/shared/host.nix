@@ -33,5 +33,10 @@ in
       type = with types; attrsOf bool;
       default = { };
     };
+    sessionVariables = mkOption {
+      type = with types; attrsOf str;
+      default = { };
+      description = "Host-specific shell session variables, merged into the zsh environment.";
+    };
   };
 }

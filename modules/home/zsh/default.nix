@@ -103,8 +103,11 @@ in
         XDG_DATA_HOME = "$HOME/.local/share";
         XDG_CONFIG_HOME = "$HOME/.config";
         XDG_CACHE_HOME = "$HOME/.cache";
+        MUXX_SESSION_NAME =
+          if config.aaqa.host.hostname != null then toUpper config.aaqa.host.hostname else "HOME";
       }
-      // cfg.extraSessionVariables;
+      // cfg.extraSessionVariables
+      // config.aaqa.host.sessionVariables;
       initContent = ''
         if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
           . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'

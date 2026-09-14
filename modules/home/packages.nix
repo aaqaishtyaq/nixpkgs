@@ -11,53 +11,60 @@
   };
 
   config = {
-    # Direnv, load and unload environment variables depending on the current directory.
-    # https://direnv.net
-    # https://rycee.gitlab.io/home-manager/options.html#opt-programs.direnv.enable
-    programs.direnv.enable = true;
-    programs.direnv.nix-direnv.enable = true;
+    programs = {
+      # Direnv, load and unload environment variables depending on the current directory.
+      # https://direnv.net
+      # https://rycee.gitlab.io/home-manager/options.html#opt-programs.direnv.enable
+      direnv = {
+        enable = true;
+        nix-direnv.enable = true;
+      };
 
-    # Htop
-    # https://rycee.gitlab.io/home-manager/options.html#opt-programs.htop.enable
-    programs.htop.enable = true;
-    programs.htop.settings.show_program_path = true;
+      # Htop
+      # https://rycee.gitlab.io/home-manager/options.html#opt-programs.htop.enable
+      htop = {
+        enable = true;
+        settings.show_program_path = true;
+      };
 
-    # SSH
-    # https://nix-community.github.io/home-manager/options.html#opt-programs.ssh.enable
-    # Some options also set in `../darwin/homebrew.nix`.
-    programs.ssh.enable = true;
-    programs.ssh.enableDefaultConfig = false;
-    programs.ssh.settings."*" = {
-      ControlPath = "~/.ssh/%C";
+      # SSH
+      # https://nix-community.github.io/home-manager/options.html#opt-programs.ssh.enable
+      # Some options also set in `../darwin/homebrew.nix`.
+      ssh = {
+        enable = true;
+        enableDefaultConfig = false;
+        settings."*" = {
+          ControlPath = "~/.ssh/%C";
+        };
+        extraConfig = ''
+          Host sirius
+              HostName sirius.aaqa.dev
+              User aaqaishtyaq
+          Host gcp
+              HostName gcp.aaqa.dev
+              User aaqaishtyaq
+          Host thinkpad
+              HostName thinkpad.tailnet-ff04.ts.net
+              User aaqa
+
+        ''
+        + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+          Include ~/.orbstack/ssh/config
+        ''
+        + ''
+          Include ~/.ssh/local_config
+        '';
+      };
+
+      zoxide.enable = true;
+      fzf = {
+        enableZshIntegration = true;
+        enable = true;
+      };
     };
-    programs.ssh.extraConfig = ''
-      Host sirius
-          HostName sirius.aaqa.dev
-          User aaqaishtyaq
-      Host gcp
-          HostName gcp.aaqa.dev
-          User aaqaishtyaq
-      Host thinkpad
-          HostName thinkpad.tailnet-ff04.ts.net
-          User aaqa
-
-    ''
-    + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-      Include ~/.orbstack/ssh/config
-    ''
-    + ''
-      Include ~/.ssh/local_config
-    '';
-
-    programs.zoxide.enable = true;
 
     targets.genericLinux.enable = !pkgs.stdenv.hostPlatform.isDarwin;
     fonts.fontconfig.enable = !pkgs.stdenv.hostPlatform.isDarwin;
-
-    programs.fzf = {
-      enableZshIntegration = true;
-      enable = true;
-    };
 
     home.packages = lib.attrValues (
       {
@@ -190,8 +197,8 @@
           pinentry-curses
           ;
 
-        # Personal-tap tools on Darwin (see ../darwin/homebrew.nix homebrew.brews),
-        # now published in nixpkgs proper.
+        # Personal-tap tools are sourced from nixpkgs on non-Darwin hosts;
+        # Darwin hosts receive them from ../darwin/homebrew.nix.
         inherit (pkgs)
           rtk
           beads

@@ -13,7 +13,7 @@ let
   mergeModules = modules: lib.foldl' lib.recursiveUpdate { } modules;
 
   baseHomeModule =
-    { ... }:
+    _:
     lib.mkMerge [
       {
         home.username = host.username;
@@ -37,7 +37,7 @@ let
     ];
 
   hostHomeModule =
-    { ... }:
+    _:
     mergeModules (
       [
         {
@@ -55,17 +55,46 @@ let
         }
       ]
       ++ map (role: lib.setAttrByPath [ "aaqa" "roles" role "enable" ] true) host.roles
-      ++ map
-        (feature: lib.setAttrByPath [ "aaqa" feature "enable" ] host.features.${feature})
-        (builtins.attrNames host.features)
+      ++ map (feature: lib.setAttrByPath [ "aaqa" feature "enable" ] host.features.${feature}) (
+        builtins.attrNames host.features
+      )
     );
 
   nixRegistryModule = {
     nix.registry.my.flake = inputs.self;
   };
 
+  hostModule = {
+    aaqa.host = {
+      inherit (host)
+        name
+        kind
+        system
+        hostname
+        roles
+        features
+        sessionVariables
+        ;
+    };
+  };
+
+  homeModules = [
+    homeManagerModule
+    baseHomeModule
+    hostHomeModule
+  ]
+  ++ host.extraHomeModules;
+
+  homeManagerUserModule = {
+    home-manager.useGlobalPkgs = true;
+    home-manager.useUserPackages = true;
+    home-manager.users.${host.username} = {
+      imports = homeModules;
+    };
+  };
+
   darwinUserModule =
-    { config, ... }:
+    _:
     {
       users.primaryUser = {
         inherit (host)
@@ -80,31 +109,8 @@ let
       system.primaryUser = host.username;
       users.users.${host.username}.home = host.homeDirectory;
       nix.nixPath.nixpkgs = "${inputs.nixpkgs-unstable}";
-
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.users.${host.username} = {
-        imports = [
-          homeManagerModule
-          baseHomeModule
-          hostHomeModule
-        ] ++ host.extraHomeModules;
-      };
-    };
-
-  nixosUserModule =
-    { ... }:
-    {
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.users.${host.username} = {
-        imports = [
-          homeManagerModule
-          baseHomeModule
-          hostHomeModule
-        ] ++ host.extraHomeModules;
-      };
-    };
+    }
+    // homeManagerUserModule;
 in
 if host.kind == "darwin" then
   inputs.darwin.lib.darwinSystem {
@@ -114,21 +120,10 @@ if host.kind == "darwin" then
       inputs.home-manager.darwinModules.home-manager
       nixRegistryModule
       { nixpkgs = nixpkgsDefaults; }
-      {
-        aaqa.host = {
-          inherit (host)
-            name
-            kind
-            system
-            hostname
-            roles
-            features
-            sessionVariables
-            ;
-        };
-      }
+      hostModule
       darwinUserModule
-    ] ++ host.extraModules;
+    ]
+    ++ host.extraModules;
   }
 else if host.kind == "nixos" then
   inputs.nixpkgs-unstable.lib.nixosSystem {
@@ -140,27 +135,14 @@ else if host.kind == "nixos" then
       { nixpkgs = nixpkgsDefaults; }
       {
         system.stateVersion = host.stateVersion;
-        aaqa.host = {
-          inherit (host)
-            name
-            kind
-            system
-            hostname
-            roles
-            features
-            sessionVariables
-            ;
-        };
       }
-      nixosUserModule
-    ] ++ host.extraModules;
+      hostModule
+      homeManagerUserModule
+    ]
+    ++ host.extraModules;
   }
 else
   inputs.home-manager.lib.homeManagerConfiguration {
     pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { system = host.system; });
-    modules = [
-      homeManagerModule
-      baseHomeModule
-      hostHomeModule
-    ] ++ host.extraHomeModules;
+    modules = homeModules;
   }

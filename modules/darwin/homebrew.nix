@@ -49,7 +49,6 @@ in
     "font-iosevka-nerd-font"
     "orbstack"
     "zen"
-    "alfred"
     "clipy"
     "brave-browser"
     "tailscale-app"

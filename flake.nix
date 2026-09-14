@@ -225,19 +225,8 @@
 
       inherit overlays;
 
-      hosts = hosts;
-
       darwinModules.default = import ./modules/darwin;
       nixosModules.default = import ./modules/nixos;
-      homeManagerModules.default = import ./modules/home;
-
-      roleModules = {
-        desktop = import ./modules/roles/desktop.nix;
-        server = import ./modules/roles/server.nix;
-        laptop = import ./modules/roles/laptop.nix;
-        vm = import ./modules/roles/vm.nix;
-        ci = import ./modules/roles/ci.nix;
-      };
 
       darwinConfigurations = mapAttrs (name: _: builtHosts.${name}) darwinHosts // {
         bootstrap-arm = inputs.darwin.lib.darwinSystem {

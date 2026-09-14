@@ -9,5 +9,6 @@
     ./pam.nix
     ./users.nix
     ./roles.nix
+    ./vorssaint.nix
   ];
 }

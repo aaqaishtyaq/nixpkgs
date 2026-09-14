@@ -53,7 +53,7 @@ in
     "clipy"
     "brave-browser"
     "tailscale-app"
-    "rectangle"
+    "vorssaint"
     "ghostty"
     "logseq"
     "cursor"

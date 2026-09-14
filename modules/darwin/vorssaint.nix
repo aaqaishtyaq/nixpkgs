@@ -74,6 +74,7 @@ let
 
   enabledFeatures = [
     "appUpdates"
+    "clipboardHistory"
     "cleaningMode"
     "colorPicker"
     "dockPreview"

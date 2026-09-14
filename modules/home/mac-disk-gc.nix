@@ -9,7 +9,7 @@ let
   script = ./bin/mac-disk-gc.sh;
 in
 {
-  config = lib.mkIf pkgs.stdenv.isDarwin {
+  config = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     home.file.".local/bin/mac-disk-gc.sh".source = script;
 
     launchd.agents.mac-disk-gc = {

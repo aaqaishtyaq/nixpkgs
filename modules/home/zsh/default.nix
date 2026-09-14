@@ -51,7 +51,7 @@ in
         tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
         chmox = "chmod u+x";
         cl = "clear";
-        ctags = if pkgs.stdenv.isDarwin then "/usr/local/bin/ctags" else "ctags";
+        ctags = if pkgs.stdenv.hostPlatform.isDarwin then "/usr/local/bin/ctags" else "ctags";
         e = "nvim";
         ga = "git add";
         gb = "git branch";
@@ -113,7 +113,7 @@ in
           . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
         fi
       ''
-      + optionalString pkgs.stdenv.isDarwin ''
+      + optionalString pkgs.stdenv.hostPlatform.isDarwin ''
         _brew_env_cache="''${XDG_CACHE_HOME:-$HOME/.cache}/brew_shellenv"
         if [[ ! -f "$_brew_env_cache" || /opt/homebrew/bin/brew -nt "$_brew_env_cache" ]]; then
           mkdir -p "''${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -145,7 +145,7 @@ in
 
         RPROMPT=""
       ''
-      + optionalString pkgs.stdenv.isDarwin ''
+      + optionalString pkgs.stdenv.hostPlatform.isDarwin ''
         source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
         export PLAN9=/usr/local/plan9

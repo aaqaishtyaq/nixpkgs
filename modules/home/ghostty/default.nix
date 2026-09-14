@@ -39,31 +39,30 @@ let
   '';
 
   # Override Cursor Dark theme without selection colors
-  mkCursorDarkCustomTm =
-    cursorColor: ''
-      palette = 0=#2a2a2a
-      palette = 1=#bf616a
-      palette = 2=#a3be8c
-      palette = 3=#ebcb8b
-      palette = 4=#81a1c1
-      palette = 5=#b48ead
-      palette = 6=#88c0d0
-      palette = 7=#d8dee9
-      palette = 8=#505050
-      palette = 9=#bf616a
-      palette = 10=#a3be8c
-      palette = 11=#ebcb8b
-      palette = 12=#81a1c1
-      palette = 13=#b48ead
-      palette = 14=#88c0d0
-      palette = 15=#ffffff
-      background = #141414
-      foreground = #ffffff
-      cursor-color = ${cursorColor}
-      cursor-text = #141414
-      selection-background = cell-foreground
-      selection-foreground = cell-background
-    '';
+  mkCursorDarkCustomTm = cursorColor: ''
+    palette = 0=#2a2a2a
+    palette = 1=#bf616a
+    palette = 2=#a3be8c
+    palette = 3=#ebcb8b
+    palette = 4=#81a1c1
+    palette = 5=#b48ead
+    palette = 6=#88c0d0
+    palette = 7=#d8dee9
+    palette = 8=#505050
+    palette = 9=#bf616a
+    palette = 10=#a3be8c
+    palette = 11=#ebcb8b
+    palette = 12=#81a1c1
+    palette = 13=#b48ead
+    palette = 14=#88c0d0
+    palette = 15=#ffffff
+    background = #141414
+    foreground = #ffffff
+    cursor-color = ${cursorColor}
+    cursor-text = #141414
+    selection-background = cell-foreground
+    selection-foreground = cell-background
+  '';
 in
 
 {
@@ -79,7 +78,8 @@ in
 
   config = mkIf config.aaqa.ghostty.enable {
     xdg.configFile."ghostty/themes/aladark".text = aladarkTheme;
-    xdg.configFile."ghostty/themes/DarkCustom".text = mkCursorDarkCustomTm config.aaqa.ghostty.accentColor;
+    xdg.configFile."ghostty/themes/DarkCustom".text =
+      mkCursorDarkCustomTm config.aaqa.ghostty.accentColor;
 
     xdg.configFile."ghostty/config".text =
       toKeyValue
@@ -107,7 +107,7 @@ in
             bell-features = "no-attention,no-audio,system,no-title,no-border";
             cursor-style-blink = "false";
           }
-          // optionalAttrs pkgs.stdenv.isDarwin {
+          // optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
             "macos-titlebar-proxy-icon" = "hidden";
             "window-colorspace" = "display-p3";
           }
@@ -119,7 +119,7 @@ in
     # Ghostty advertises D-Bus activation.  On generic Linux, systemd does
     # not search the Nix profile's share/systemd/user directory, so expose
     # the packaged unit through Home Manager's normal user-unit path.
-    home.file = lib.mkIf pkgs.stdenv.isLinux {
+    home.file = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       ".config/systemd/user/app-com.mitchellh.ghostty.service".source =
         "${pkgs.ghostty}/share/systemd/user/app-com.mitchellh.ghostty.service";
     };

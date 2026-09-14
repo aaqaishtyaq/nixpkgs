@@ -16,7 +16,7 @@ in
       {
         aaqa.ghostty.enable = lib.mkDefault true;
       }
-      (lib.mkIf pkgs.stdenv.isDarwin {
+      (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
         aaqa.hammerspoon.enable = lib.mkDefault true;
       })
     ]

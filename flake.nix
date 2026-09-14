@@ -3,9 +3,8 @@
 
   inputs = {
     # Package sets
-    nixpkgs.url = "github:nixos/nixpkgs/master";
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     iay = {
@@ -90,12 +89,17 @@
         };
         helium =
           _: prev:
-          optionalAttrs (builtins.elem prev.stdenv.hostPlatform.system [ "x86_64-linux" "aarch64-linux" ]) {
-            helium = inputs.helium.packages.${prev.stdenv.hostPlatform.system}.default;
-          };
+          optionalAttrs
+            (builtins.elem prev.stdenv.hostPlatform.system [
+              "x86_64-linux"
+              "aarch64-linux"
+            ])
+            {
+              helium = inputs.helium.packages.${prev.stdenv.hostPlatform.system}.default;
+            };
         darwin-python-workarounds =
           _: prev:
-          optionalAttrs prev.stdenv.isDarwin {
+          optionalAttrs prev.stdenv.hostPlatform.isDarwin {
             python313Packages = prev.python313Packages.overrideScope (
               _: pyPrev: {
                 jeepney = pyPrev.jeepney.overrideAttrs (_: {
@@ -119,13 +123,13 @@
         # TODO: drop once https://github.com/NixOS/nixpkgs cctools-darwin is fixed.
         darwin-terminal-notifier-workaround =
           final: prev:
-          optionalAttrs prev.stdenv.isDarwin {
+          optionalAttrs prev.stdenv.hostPlatform.isDarwin {
             terminal-notifier = final.pkgs-stable.terminal-notifier;
           };
 
         direnv-cgo-fix =
           _: prev:
-          optionalAttrs prev.stdenv.isDarwin {
+          optionalAttrs prev.stdenv.hostPlatform.isDarwin {
             direnv = prev.direnv.overrideAttrs (old: {
               env = (old.env or { }) // {
                 CGO_ENABLED = "1";
@@ -253,17 +257,14 @@
         runner = builtHosts.github-linux;
       };
     }
-    // flake-utils.lib.eachDefaultSystem (
+    // flake-utils.lib.eachSystem [ "aarch64-linux" "x86_64-linux" "aarch64-darwin" ] (
       system:
       let
         pkgs = import inputs.nixpkgs-unstable (nixpkgsDefaults // { inherit system; });
         systemHosts = filterAttrs (_: host: host.system == system) hosts;
 
         mkEvalCheck =
-          name:
-          pkgs.runCommand "eval-${name}" { } ''
-            printf '%s\n' ${lib.escapeShellArg (hostDrvPath name)} > $out
-          '';
+          name: builtins.seq (hostDrvPath name) (pkgs.runCommand "eval-${name}" { } "touch $out");
 
         representativeChecks = mapAttrs (name: _: hostDerivation name) (
           filterAttrs (name: host: builtins.elem name representativeHosts && host.system == system) hosts

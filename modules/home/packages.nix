@@ -42,7 +42,7 @@
           User aaqa
 
     ''
-    + lib.optionalString pkgs.stdenv.isDarwin ''
+    + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
       Include ~/.orbstack/ssh/config
     ''
     + ''
@@ -51,8 +51,8 @@
 
     programs.zoxide.enable = true;
 
-    targets.genericLinux.enable = !pkgs.stdenv.isDarwin;
-    fonts.fontconfig.enable = !pkgs.stdenv.isDarwin;
+    targets.genericLinux.enable = !pkgs.stdenv.hostPlatform.isDarwin;
+    fonts.fontconfig.enable = !pkgs.stdenv.hostPlatform.isDarwin;
 
     programs.fzf = {
       enableZshIntegration = true;
@@ -178,14 +178,14 @@
           ;
 
       }
-      // lib.optionalAttrs pkgs.stdenv.isDarwin {
+      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
         inherit (pkgs)
           pinentry_mac
           cocoapods
           m-cli # useful macOS CLI commands
           ;
       }
-      // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+      // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) {
         inherit (pkgs)
           pinentry-curses
           ;
@@ -200,7 +200,7 @@
           ;
         stripe = pkgs.stripe-cli;
       }
-      // lib.optionalAttrs (!pkgs.stdenv.isDarwin && config.aaqa.gui.enable) {
+      // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin && config.aaqa.gui.enable) {
         inherit (pkgs)
           ghostty
           helium
@@ -233,7 +233,7 @@
       ".local/bin/zzip".source = ./bin/zzip;
       ".gitignore".source = ./bin/gitignore;
     }
-    // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+    // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) {
       # Non-Darwin hosts run node/npm from the Nix-store `nodejs` package, whose
       # default global prefix is read-only. Redirect global installs to a plain
       # writable dir under $HOME instead; its bin/ is added to PATH via

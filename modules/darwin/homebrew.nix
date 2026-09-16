@@ -30,6 +30,7 @@ in
 
   homebrew.brews = [
     "beads"
+    "container"
     "dnsmasq"
     "herdr"
     "opencode"

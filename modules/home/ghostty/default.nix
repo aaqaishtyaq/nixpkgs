@@ -110,7 +110,7 @@ in
           // optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
             "macos-titlebar-proxy-icon" = "hidden";
             "window-colorspace" = "display-p3";
-            "macos-icon" = "glass";
+            "macos-icon" = "xray";
           }
         )
       + ''

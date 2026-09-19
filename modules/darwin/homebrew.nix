@@ -45,7 +45,7 @@ in
     "hammerspoon"
     "visual-studio-code"
     "utm"
-    "hiddenbar"
+    # "hiddenbar"
     "font-blex-mono-nerd-font"
     "font-iosevka-nerd-font"
     "orbstack"

@@ -110,7 +110,7 @@
 
         # Runtimes
         inherit (pkgs)
-          go_1_25
+          go_1_27
           pkg-config
           bundix
           gnumake

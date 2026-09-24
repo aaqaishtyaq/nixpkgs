@@ -72,8 +72,18 @@ fi
 # --- go build cache (rebuildable) ---
 [ -d "$HOME/.cache/go-build" ] && rm -rf "$HOME/.cache/go-build"
 
+# --- infra deploy-cache / compute artifacts: per-commit snapshots, no upstream
+# retention (hit 136G+). Keep the newest 3 per category dir. ---
+GH="$HOME/Developer/go/src/github.com/zeishdev"
+prune_keep3() {
+  [ -d "$1" ] || return 0
+  ls -1t "$1" 2>/dev/null | tail -n +4 | while IFS= read -r old; do rm -rf "$1/$old"; done
+}
+for d in "$GH"/infra/.deploy-cache/*/; do prune_keep3 "${d%/}"; done
+prune_keep3 "$GH/compute/.compute-artifacts"
+
 # --- depot fleet: rollback backups + nix gc + journal + apt + fstrim ---
-DEPOT_DIR="$HOME/Developer/go/src/github.com/spinupdev/depot"
+DEPOT_DIR="$HOME/Developer/go/src/github.com/zeishdev/compute"
 if [ -d "$DEPOT_DIR/tools" ]; then
   log "depot fleet: running disk-gc"
   ( cd "$DEPOT_DIR" && ./tools/devtool fleet disk-gc >/tmp/mac-disk-gc-fleet.log 2>&1 )

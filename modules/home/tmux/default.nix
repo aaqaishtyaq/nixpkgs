@@ -119,6 +119,7 @@ in
                 set -g window-status-separator ""
                 # set -g window-status-current-format "#[fg=$color_light,bg=$color_main,bold] #I:#W #[fg=$color_main,bg=$color_dark]#[default]"
                 # instead of boxes, highlight the active window text
+                set -g window-status-current-style "default"
                 set -g window-status-current-format "#[fg=$color_main,bold] #I:#W* #[fg=$color_main,bg=$color_dark]#[default]"
                 set -g window-status-activity-style "fg=$color_main"
 

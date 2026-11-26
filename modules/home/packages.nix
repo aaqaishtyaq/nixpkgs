@@ -46,6 +46,9 @@
           Host thinkpad
               HostName thinkpad.tailnet-ff04.ts.net
               User aaqa
+          Host spt-ams-2
+              HostName 64.235.33.187
+              User ubuntu
 
         ''
         + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
